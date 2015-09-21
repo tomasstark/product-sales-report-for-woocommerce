@@ -14,13 +14,46 @@ add_action('admin_menu', function() {
 	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbp', 'hm_sbp_page');
 });
 
+@include(__DIR__.'/hm-product-sales-report-pro.php');
+define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
+
+function hm_psr_default_report_settings() {
+	return array(
+		'report_time' => '30d',
+		'report_start' => date('Y-m-d', current_time('timestamp') - (86400 * 31)),
+		'report_end' => date('Y-m-d', current_time('timestamp') - 86400),
+		'cat' => 0,
+		'variations' => 0,
+		'orderby' => 'quantity',
+		'orderdir' => 'desc',
+		'fields' => array('product_id', 'product_sku', 'product_name', 'quantity_sold', 'gross_sales'),
+		'limit_on' => 0,
+		'limit' => 10,
+		'include_header' => 1
+	);
+}
+
 // This function generates the Product Sales Report page HTML
 function hm_sbp_page() {
+
+	$savedReportSettings = get_option('hm_psr_report_settings');
+	$reportSettings = (empty($savedReportSettings) ? hm_psr_default_report_settings() : array_merge(hm_psr_default_report_settings(), $savedReportSettings));
+	
+	$fieldOptions = array(
+		'product_id' => 'Product ID',
+		'variation_id' => 'Variation ID',
+		'product_sku' => 'Product SKU',
+		'product_name' => 'Product Name',
+		'variation_attributes' => 'Variation Attributes',
+		'quantity_sold' => 'Quantity Sold',
+		'gross_sales' => 'Gross Sales'
+	);
+		
 	
 	// Print header
 	echo('
 		<div class="wrap">
-			<h2>Product Sales Report</h2>
+			<h2>Product Sales Report'.(HM_PSR_IS_PRO ? ' Pro' : '').'</h2>
 	');
 	
 	// Check for WooCommerce
@@ -45,12 +78,12 @@ function hm_sbp_page() {
 						</th>
 						<td>
 							<select name="report_time" id="hm_sbp_field_report_time">
-								<option value="0d">Today</option>
-								<option value="1d">Yesterday</option>
-								<option value="7d">Last 7 days</option>
-								<option value="30d" selected="selected">Last 30 days</option>
-								<option value="all">All time</option>
-								<option value="custom">Custom date range</option>
+								<option value="0d"'.($reportSettings['report_time'] == '0d' ? ' selected="selected"' : '').'>Today</option>
+								<option value="1d"'.($reportSettings['report_time'] == '1d' ? ' selected="selected"' : '').'>Yesterday</option>
+								<option value="7d"'.($reportSettings['report_time'] == '7d' ? ' selected="selected"' : '').'>Last 7 days</option>
+								<option value="30d"'.($reportSettings['report_time'] == '30d' ? ' selected="selected"' : '').'>Last 30 days</option>
+								<option value="all"'.($reportSettings['report_time'] == 'all' ? ' selected="selected"' : '').'>All time</option>
+								<option value="custom"'.($reportSettings['report_time'] == 'custom' ? ' selected="selected"' : '').'>Custom date range</option>
 							</select>
 						</td>
 					</tr>
@@ -59,7 +92,7 @@ function hm_sbp_page() {
 							<label for="hm_sbp_field_report_start">Start Date:</label>
 						</th>
 						<td>
-							<input type="date" name="report_start" id="hm_sbp_field_report_start" value="'.date('Y-m-d', current_time('timestamp') - (86400 * 31)).'" />
+							<input type="date" name="report_start" id="hm_sbp_field_report_start" value="'.$reportSettings['report_start'].'" />
 						</td>
 					</tr>
 					<tr valign="top" class="hm_sbp_custom_time">
@@ -67,7 +100,7 @@ function hm_sbp_page() {
 							<label for="hm_sbp_field_report_end">End Date:</label>
 						</th>
 						<td>
-							<input type="date" name="report_end" id="hm_sbp_field_report_end" value="'.date('Y-m-d', current_time('timestamp') - 86400).'" />
+							<input type="date" name="report_end" id="hm_sbp_field_report_end" value="'.$reportSettings['report_end'].'" />
 						</td>
 					</tr>
 					<tr valign="top">
@@ -83,10 +116,26 @@ function hm_sbp_page() {
 		'name' => 'cat',
 		'orderby' => 'NAME',
 		'order' => 'ASC',
-		'show_option_all' => 'All Categories'
+		'show_option_all' => 'All Categories',
+		'selected' => $reportSettings['cat']
 	));
 	
 	echo('
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">
+							<label for="hm_sbp_field_orderby">Product Variations:</label>
+						</th>
+						<td>
+							<label>
+								<input type="radio" name="variations" value="0"'.(empty($reportSettings['variations']) ? ' checked="checked"' : '').' class="variations-fld" />
+								Group product variations together
+							</label><br />
+							<label>
+								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').(HM_PSR_IS_PRO ? '' : ' disabled="disabled"').' class="variations-fld" />
+								Report on each variation separately'.(HM_PSR_IS_PRO ? '' : '<sup style="color: #f00;">PRO</sup>').'
+							</label>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -95,13 +144,13 @@ function hm_sbp_page() {
 						</th>
 						<td>
 							<select name="orderby" id="hm_sbp_field_orderby">
-								<option value="product_id">Product ID</option>
-								<option value="quantity" selected="selected">Quantity Sold</option>
-								<option value="gross">Gross Sales</option>
+								<option value="product_id"'.($reportSettings['orderby'] == 'product_id' ? ' selected="selected"' : '').'>Product ID</option>
+								<option value="quantity"'.($reportSettings['orderby'] == 'quantity' ? ' selected="selected"' : '').'>Quantity Sold</option>
+								<option value="gross"'.($reportSettings['orderby'] == 'gross' ? ' selected="selected"' : '').'>Gross Sales</option>
 							</select>
 							<select name="orderdir">
-								<option value="asc">ascending</option>
-								<option value="desc" selected="selected">descending</option>
+								<option value="asc"'.($reportSettings['orderdir'] == 'asc' ? ' selected="selected"' : '').'>ascending</option>
+								<option value="desc"'.($reportSettings['orderdir'] == 'desc' ? ' selected="selected"' : '').'>descending</option>
 							</select>
 						</td>
 					</tr>
@@ -109,20 +158,26 @@ function hm_sbp_page() {
 						<th scope="row">
 							<label>Report Fields:</label>
 						</th>
-						<td>
-							<label><input type="checkbox" name="fields[]" checked="checked" value="product_id" /> Product ID</label><br />
-							<label><input type="checkbox" name="fields[]" checked="checked" value="product_sku" /> Product SKU</label><br />
-							<label><input type="checkbox" name="fields[]" checked="checked" value="product_name" /> Product Name</label><br />
-							<label><input type="checkbox" name="fields[]" checked="checked" value="quantity_sold" /> Quantity Sold</label><br />
-							<label><input type="checkbox" name="fields[]" checked="checked" value="gross_sales" /> Gross Sales</label>
-						</td>
+						<td id="hm_psr_report_field_selection">');
+	$fieldOptions2 = $fieldOptions;
+	foreach ($reportSettings['fields'] as $fieldId) {
+		if (!isset($fieldOptions2[$fieldId]))
+			continue;
+		echo('<label><input type="checkbox" name="fields[]" checked="checked" value="'.$fieldId.'"'.(in_array($fieldId, array('variation_id', 'variation_attributes')) ? ' class="variation-field"' : '').' /> '.$fieldOptions2[$fieldId].'</label>');
+		unset($fieldOptions2[$fieldId]);
+	}
+	foreach ($fieldOptions2 as $fieldId => $fieldDisplay) {
+		echo('<label><input type="checkbox" name="fields[]" value="'.$fieldId.'"'.(in_array($fieldId, array('variation_id', 'variation_attributes')) ? ' class="variation-field"' : '').' /> '.$fieldDisplay.'</label>');
+	}
+	unset($fieldOptions2);
+				echo('</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row" colspan="2" class="th-full">
 							<label>
-								<input type="checkbox" name="limit_on" />
+								<input type="checkbox" name="limit_on"'.(empty($reportSettings['limit_on']) ? '' : ' checked="checked"').' />
 								Show only the first
-								<input type="number" name="limit" value="10" min="0" step="1" class="small-text" />
+								<input type="number" name="limit" value="'.$reportSettings['limit'].'" min="0" step="1" class="small-text" />
 								products
 							</label>
 						</th>
@@ -130,7 +185,7 @@ function hm_sbp_page() {
 					<tr valign="top">
 						<th scope="row" colspan="2" class="th-full">
 							<label>
-								<input type="checkbox" name="include_header" checked="checked" />
+								<input type="checkbox" name="include_header"'.(empty($reportSettings['include_header']) ? '' : ' checked="checked"').' />
 								Include header row
 							</label>
 						</th>
@@ -153,6 +208,10 @@ function hm_sbp_page() {
 		
 		<script type="text/javascript" src="'.plugins_url('js/hm-product-sales-report.js', __FILE__).'"></script>
 	');
+	
+	if (HM_PSR_IS_PRO) {
+		HM_Product_Sales_Report_Pro::adminPageJs();
+	}
 
 }
 
@@ -169,6 +228,14 @@ function hm_sbp_on_init() {
 		
 		// Verify the nonce
 		check_admin_referer('hm_sbp_do_export');
+		
+		$newSettings = $_POST;
+		foreach ($newSettings as $key => $value)
+			if (!is_array($value))
+				$newSettings[$key] = htmlspecialchars($value);
+		
+		// Update the saved report options
+		update_option('hm_psr_report_settings', array_merge(hm_psr_default_report_settings(), $newSettings));
 		
 		// Check if no fields are selected
 		if (empty($_POST['fields']))
@@ -200,16 +267,33 @@ function hm_sbp_on_init() {
 // This function outputs the report header row
 function hm_sbp_export_header($dest) {
 	$header = array();
-	if (in_array('product_id', $_POST['fields']))
-		$header[] = 'Product ID';
-	if (in_array('product_sku', $_POST['fields']))
-		$header[] = 'Product SKU';
-	if (in_array('product_name', $_POST['fields']))
-		$header[] = 'Product Name';
-	if (in_array('quantity_sold', $_POST['fields']))
-		$header[] = 'Quantity Sold';
-	if (in_array('gross_sales', $_POST['fields']))
-		$header[] = 'Gross Sales';
+	
+	foreach ($_POST['fields'] as $field) {
+		switch ($field) {
+			case 'product_id':
+				$header[] = 'Product ID';
+				break;
+			case 'variation_id':
+				$header[] = 'Variation ID';
+				break;
+			case 'product_sku':
+				$header[] = 'Product SKU';
+				break;
+			case 'product_name':
+				$header[] = 'Product Name';
+				break;
+			case 'variation_attributes':
+				$header[] = 'Variation Attributes';
+				break;
+			case 'quantity_sold':
+				$header[] = 'Quantity Sold';
+				break;
+			case 'gross_sales':
+				$header[] = 'Gross Sales';
+				break;
+		}
+	}
+	
 	fputcsv($dest, $header);
 }
 
@@ -256,52 +340,80 @@ function hm_sbp_export_body($dest) {
 	$wc_report->end_date = $end_date;
 
 	// Get report data
-	// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
-	$sold_products = $wc_report->get_order_report_data(array(
-		'data' => array(
-			'_product_id' => array(
-				'type' => 'order_item_meta',
-				'order_item_type' => 'line_item',
-				'function' => '',
-				'name' => 'product_id'
+	
+	if (HM_PSR_IS_PRO) {
+		$sold_products = HM_Product_Sales_Report_Pro::getReportData($wc_report);
+	} else {
+		// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
+		$sold_products = $wc_report->get_order_report_data(array(
+			'data' => array(
+				'_product_id' => array(
+					'type' => 'order_item_meta',
+					'order_item_type' => 'line_item',
+					'function' => '',
+					'name' => 'product_id'
+				),
+				'_qty' => array(
+					'type' => 'order_item_meta',
+					'order_item_type' => 'line_item',
+					'function' => 'SUM',
+					'name' => 'quantity'
+				),
+				'_line_subtotal' => array(
+					'type' => 'order_item_meta',
+					'order_item_type' => 'line_item',
+					'function' => 'SUM',
+					'name' => 'gross'
+				)
 			),
-			'_qty' => array(
-				'type' => 'order_item_meta',
-				'order_item_type' => 'line_item',
-				'function' => 'SUM',
-				'name' => 'quantity'
-			),
-			'_line_subtotal' => array(
-				'type' => 'order_item_meta',
-				'order_item_type' => 'line_item',
-				'function' => 'SUM',
-				'name' => 'gross'
-			)
-		),
-		'query_type' => 'get_results',
-		'group_by' => 'product_id',
-		'order_by' => $orderby,
-		'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
-		'filter_range' => ($_POST['report_time'] != 'all'),
-		'order_types' => wc_get_order_types('order_count')
-	));
+			'query_type' => 'get_results',
+			'group_by' => 'product_id',
+			'order_by' => $orderby,
+			'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
+			'filter_range' => ($_POST['report_time'] != 'all'),
+			'order_types' => wc_get_order_types('order_count')
+		));
+	}
 	
 	// Output report rows
 	foreach ($sold_products as $product) {
 		if (!empty($category_id) && !in_array($product->product_id, $product_ids))
 			continue;
 		$row = array();
-		if (in_array('product_id', $_POST['fields']))
-			$row[] = $product->product_id;
-		if (in_array('product_sku', $_POST['fields']))
-			$row[] = get_post_meta($product->product_id, '_sku', true);
-		if (in_array('product_name', $_POST['fields']))
-			$row[] = html_entity_decode(get_the_title($product->product_id));
-		if (in_array('quantity_sold', $_POST['fields']))
-			$row[] = $product->quantity;
-		if (in_array('gross_sales', $_POST['fields']))
-			$row[] = $product->gross;
+		
+		foreach ($_POST['fields'] as $field) {
+			switch ($field) {
+				case 'product_id':
+					$row[] = $product->product_id;
+					break;
+				case 'variation_id':
+					$row[] = (empty($product->variation_id) ? '' : $product->variation_id);
+					break;
+				case 'product_sku':
+					$row[] = get_post_meta($product->product_id, '_sku', true);
+					break;
+				case 'product_name':
+					$row[] = html_entity_decode(get_the_title($product->product_id));
+					break;
+				case 'variation_attributes':
+					$row[] = HM_Product_Sales_Report_Pro::getFormattedVariationAttributes($product);
+					break;
+				case 'quantity_sold':
+					$row[] = $product->quantity;
+					break;
+				case 'gross_sales':
+					$row[] = $product->gross;
+					break;
+			}
+		}
+			
 		fputcsv($dest, $row);
 	}
+}
+
+add_action('admin_enqueue_scripts', 'hm_psr_admin_enqueue_scripts');
+function hm_psr_admin_enqueue_scripts() {
+	wp_register_style('hm_psr_admin_style', plugins_url('css/hm-product-sales-report.css', __FILE__));
+	wp_enqueue_style('hm_psr_admin_style');
 }
 ?>
