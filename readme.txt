@@ -3,7 +3,7 @@ Contributors: hearken
 Tags: woocommerce, sales, report, export, csv
 Requires at least: 4.0
 Tested up to: 4.3.1
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.1.4 =
+* Added Pro version info
 
 = 1.1.2 =
 * Made report settings persistent (options are saved when a report is generated)

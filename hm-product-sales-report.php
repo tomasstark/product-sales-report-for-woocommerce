@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.1.1
+ * Version: 1.1.4
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -14,8 +14,6 @@ add_action('admin_menu', function() {
 	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbp', 'hm_sbp_page');
 });
 
-@include(__DIR__.'/hm-product-sales-report-pro.php');
-define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
 
 function hm_psr_default_report_settings() {
 	return array(
@@ -37,7 +35,20 @@ function hm_psr_default_report_settings() {
 function hm_sbp_page() {
 
 	$savedReportSettings = get_option('hm_psr_report_settings');
-	$reportSettings = (empty($savedReportSettings) ? hm_psr_default_report_settings() : array_merge(hm_psr_default_report_settings(), $savedReportSettings));
+	if (isset($_POST['op']) && $_POST['op'] == 'preset-del' && !empty($_POST['r']) && isset($savedReportSettings[$_POST['r']])) {
+		unset($savedReportSettings[$_POST['r']]);
+		update_option('hm_psr_report_settings', $savedReportSettings);
+		$_POST['r'] = 0;
+		echo('<script type="text/javascript">location.href = location.href;</script>');
+	}
+	
+	$reportSettings = (empty($savedReportSettings) ?
+						hm_psr_default_report_settings() :
+						array_merge(hm_psr_default_report_settings(),
+								$savedReportSettings[
+									isset($_POST['r']) && isset($savedReportSettings[$_POST['r']]) ? $_POST['r'] : 0
+								]
+						));
 	
 	$fieldOptions = array(
 		'product_id' => 'Product ID',
@@ -53,7 +64,7 @@ function hm_sbp_page() {
 	// Print header
 	echo('
 		<div class="wrap">
-			<h2>Product Sales Report'.(HM_PSR_IS_PRO ? ' Pro' : '').'</h2>
+			<h2>Product Sales Report</h2>
 	');
 	
 	// Check for WooCommerce
@@ -65,8 +76,18 @@ function hm_sbp_page() {
 	}
 	
 	// Print form
-	echo('
-			<form action="" method="post">
+	
+		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; margin-top: 10px;">
+				<h3 style="margin: 0;">Upgrade to Product Sales Report Pro for the following additional features:</h3>
+				<ul>
+					<li>Report on product variations individually</li>
+					<li>Change the order of the fields/columns in the report</li>
+					<li>Save multiple report presets to save time when generating different reports</li>
+				</ul>
+				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">More Info &gt;</a>
+			</div>');
+	
+	echo('<form action="" method="post">
 				<input type="hidden" name="hm_sbp_do_export" value="1" />
 		');
 	wp_nonce_field('hm_sbp_do_export');
@@ -125,7 +146,7 @@ function hm_sbp_page() {
 					</tr>
 					<tr valign="top">
 						<th scope="row">
-							<label for="hm_sbp_field_orderby">Product Variations:</label>
+							<label>Product Variations:</label>
 						</th>
 						<td>
 							<label>
@@ -133,8 +154,8 @@ function hm_sbp_page() {
 								Group product variations together
 							</label><br />
 							<label>
-								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').(HM_PSR_IS_PRO ? '' : ' disabled="disabled"').' class="variations-fld" />
-								Report on each variation separately'.(HM_PSR_IS_PRO ? '' : '<sup style="color: #f00;">PRO</sup>').'
+								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').' disabled="disabled" class="variations-fld" />
+								Report on each variation separately<sup style="color: #f00;">PRO</sup>
 							</label>
 						</td>
 					</tr>
@@ -190,13 +211,14 @@ function hm_sbp_page() {
 							</label>
 						</th>
 					</tr>
-				</table>
-				<p class="submit">
+				</table>');
+				
+				echo('<p class="submit">
 					<button type="submit" class="button-primary">Get Report</button>
 				</p>
 			</form>
 			
-			<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px;">
+			<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; display: inline-block;">
 				<h3 style="margin: 0;">Plugin by:</h3>
 				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-widget-link" target="_blank"><img src="'.plugins_url('images/hm-logo.png', __FILE__).'" alt="Hearken Media" style="width: 250px;" /></a><br />
 				<a href="https://wordpress.org/support/view/plugin-reviews/product-sales-report-for-woocommerce" target="_blank"><strong>
@@ -209,9 +231,6 @@ function hm_sbp_page() {
 		<script type="text/javascript" src="'.plugins_url('js/hm-product-sales-report.js', __FILE__).'"></script>
 	');
 	
-	if (HM_PSR_IS_PRO) {
-		HM_Product_Sales_Report_Pro::adminPageJs();
-	}
 
 }
 
@@ -229,13 +248,15 @@ function hm_sbp_on_init() {
 		// Verify the nonce
 		check_admin_referer('hm_sbp_do_export');
 		
-		$newSettings = $_POST;
+		$newSettings = array_intersect_key($_POST, hm_psr_default_report_settings());
 		foreach ($newSettings as $key => $value)
 			if (!is_array($value))
 				$newSettings[$key] = htmlspecialchars($value);
 		
-		// Update the saved report options
-		update_option('hm_psr_report_settings', array_merge(hm_psr_default_report_settings(), $newSettings));
+		// Update the saved report settings
+		$savedReportSettings = get_option('hm_psr_report_settings');
+		$savedReportSettings[0] = array_merge(hm_psr_default_report_settings(), $newSettings);
+		update_option('hm_psr_report_settings', $savedReportSettings);
 		
 		// Check if no fields are selected
 		if (empty($_POST['fields']))
@@ -273,17 +294,11 @@ function hm_sbp_export_header($dest) {
 			case 'product_id':
 				$header[] = 'Product ID';
 				break;
-			case 'variation_id':
-				$header[] = 'Variation ID';
-				break;
 			case 'product_sku':
 				$header[] = 'Product SKU';
 				break;
 			case 'product_name':
 				$header[] = 'Product Name';
-				break;
-			case 'variation_attributes':
-				$header[] = 'Variation Attributes';
 				break;
 			case 'quantity_sold':
 				$header[] = 'Quantity Sold';
@@ -341,9 +356,7 @@ function hm_sbp_export_body($dest) {
 
 	// Get report data
 	
-	if (HM_PSR_IS_PRO) {
-		$sold_products = HM_Product_Sales_Report_Pro::getReportData($wc_report);
-	} else {
+	
 		// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 		$sold_products = $wc_report->get_order_report_data(array(
 			'data' => array(
@@ -373,7 +386,7 @@ function hm_sbp_export_body($dest) {
 			'filter_range' => ($_POST['report_time'] != 'all'),
 			'order_types' => wc_get_order_types('order_count')
 		));
-	}
+		
 	
 	// Output report rows
 	foreach ($sold_products as $product) {
@@ -386,17 +399,11 @@ function hm_sbp_export_body($dest) {
 				case 'product_id':
 					$row[] = $product->product_id;
 					break;
-				case 'variation_id':
-					$row[] = (empty($product->variation_id) ? '' : $product->variation_id);
-					break;
 				case 'product_sku':
 					$row[] = get_post_meta($product->product_id, '_sku', true);
 					break;
 				case 'product_name':
 					$row[] = html_entity_decode(get_the_title($product->product_id));
-					break;
-				case 'variation_attributes':
-					$row[] = HM_Product_Sales_Report_Pro::getFormattedVariationAttributes($product);
 					break;
 				case 'quantity_sold':
 					$row[] = $product->quantity;
