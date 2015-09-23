@@ -2,18 +2,23 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
  * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
+
+
+
+define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
+
+
 // Add the Product Sales Report to the WordPress admin
 add_action('admin_menu', function() {
 	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbp', 'hm_sbp_page');
 });
-
 
 function hm_psr_default_report_settings() {
 	return array(
@@ -57,14 +62,15 @@ function hm_sbp_page() {
 		'product_name' => 'Product Name',
 		'variation_attributes' => 'Variation Attributes',
 		'quantity_sold' => 'Quantity Sold',
-		'gross_sales' => 'Gross Sales'
+		'gross_sales' => 'Gross Sales',
+		'gross_after_discount' => 'Gross Sales (After Discounts)'
 	);
 		
 	
 	// Print header
 	echo('
 		<div class="wrap">
-			<h2>Product Sales Report</h2>
+			<h2>Product Sales Report'.(HM_PSR_IS_PRO ? ' Pro' : '').'</h2>
 	');
 	
 	// Check for WooCommerce
@@ -77,7 +83,7 @@ function hm_sbp_page() {
 	
 	// Print form
 	
-		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; margin-top: 10px;">
+		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px;">
 				<h3 style="margin: 0;">Upgrade to Product Sales Report Pro for the following additional features:</h3>
 				<ul>
 					<li>Report on product variations individually</li>
@@ -86,6 +92,7 @@ function hm_sbp_page() {
 				</ul>
 				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">More Info &gt;</a>
 			</div>');
+	
 	
 	echo('<form action="" method="post">
 				<input type="hidden" name="hm_sbp_do_export" value="1" />
@@ -154,8 +161,8 @@ function hm_sbp_page() {
 								Group product variations together
 							</label><br />
 							<label>
-								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').' disabled="disabled" class="variations-fld" />
-								Report on each variation separately<sup style="color: #f00;">PRO</sup>
+								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').(HM_PSR_IS_PRO ? '' : ' disabled="disabled"').' class="variations-fld" />
+								Report on each variation separately'.(HM_PSR_IS_PRO ? '' : '<sup style="color: #f00;">PRO</sup>').'
 							</label>
 						</td>
 					</tr>
@@ -213,6 +220,8 @@ function hm_sbp_page() {
 					</tr>
 				</table>');
 				
+				
+				
 				echo('<p class="submit">
 					<button type="submit" class="button-primary">Get Report</button>
 				</p>
@@ -230,6 +239,7 @@ function hm_sbp_page() {
 		
 		<script type="text/javascript" src="'.plugins_url('js/hm-product-sales-report.js', __FILE__).'"></script>
 	');
+	
 	
 
 }
@@ -256,6 +266,7 @@ function hm_sbp_on_init() {
 		// Update the saved report settings
 		$savedReportSettings = get_option('hm_psr_report_settings');
 		$savedReportSettings[0] = array_merge(hm_psr_default_report_settings(), $newSettings);
+		
 		update_option('hm_psr_report_settings', $savedReportSettings);
 		
 		// Check if no fields are selected
@@ -294,17 +305,26 @@ function hm_sbp_export_header($dest) {
 			case 'product_id':
 				$header[] = 'Product ID';
 				break;
+			case 'variation_id':
+				$header[] = 'Variation ID';
+				break;
 			case 'product_sku':
 				$header[] = 'Product SKU';
 				break;
 			case 'product_name':
 				$header[] = 'Product Name';
 				break;
+			case 'variation_attributes':
+				$header[] = 'Variation Attributes';
+				break;
 			case 'quantity_sold':
 				$header[] = 'Quantity Sold';
 				break;
 			case 'gross_sales':
 				$header[] = 'Gross Sales';
+				break;
+			case 'gross_after_discount':
+				$header[] = 'Gross Sales (After Discounts)';
 				break;
 		}
 	}
@@ -377,6 +397,12 @@ function hm_sbp_export_body($dest) {
 					'order_item_type' => 'line_item',
 					'function' => 'SUM',
 					'name' => 'gross'
+				),
+				'_line_total' => array(
+					'type' => 'order_item_meta',
+					'order_item_type' => 'line_item',
+					'function' => 'SUM',
+					'name' => 'gross_after_discount'
 				)
 			),
 			'query_type' => 'get_results',
@@ -386,7 +412,7 @@ function hm_sbp_export_body($dest) {
 			'filter_range' => ($_POST['report_time'] != 'all'),
 			'order_types' => wc_get_order_types('order_count')
 		));
-		
+	
 	
 	// Output report rows
 	foreach ($sold_products as $product) {
@@ -399,17 +425,26 @@ function hm_sbp_export_body($dest) {
 				case 'product_id':
 					$row[] = $product->product_id;
 					break;
+				case 'variation_id':
+					$row[] = (empty($product->variation_id) ? '' : $product->variation_id);
+					break;
 				case 'product_sku':
 					$row[] = get_post_meta($product->product_id, '_sku', true);
 					break;
 				case 'product_name':
 					$row[] = html_entity_decode(get_the_title($product->product_id));
 					break;
+				case 'variation_attributes':
+					$row[] = (HM_PSR_IS_PRO ? HM_Product_Sales_Report_Pro::getFormattedVariationAttributes($product) : '');
+					break;
 				case 'quantity_sold':
 					$row[] = $product->quantity;
 					break;
 				case 'gross_sales':
 					$row[] = $product->gross;
+					break;
+				case 'gross_after_discount':
+					$row[] = $product->gross_after_discount;
 					break;
 			}
 		}
