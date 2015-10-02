@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.1.5
+ * Version: 1.1.6
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -70,18 +70,27 @@ function hm_sbp_page() {
 	// Print header
 	echo('
 		<div class="wrap">
-			<h2>Product Sales Report'.(HM_PSR_IS_PRO ? ' Pro' : '').'</h2>
+			<h2>Product Sales Report'.'</h2>
 	');
 	
 	// Check for WooCommerce
 	if (!class_exists('WooCommerce')) {
-		echo('
-			This plugin requires that WooCommerce is installed and activated.
-		</div>');
+		echo('<div class="error"><p>This plugin requires that WooCommerce is installed and activated.</p></div></div>');
+		return;
+	} else if (!function_exists('wc_get_order_types')) {
+		echo('<div class="error"><p>The Product Sales Report plugin requires WooCommerce 2.2 or higher. Please update your WooCommerce install.</p></div></div>');
 		return;
 	}
 	
+	
+	
+	// Check for license
+	if (HM_PSR_IS_PRO && !HM_Product_Sales_Report_Pro::licenseCheck())
+		return;
+	
+	
 	// Print form
+	
 	
 		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px;">
 				<h3 style="margin: 0;">Upgrade to Product Sales Report Pro for the following additional features:</h3>
@@ -90,8 +99,10 @@ function hm_sbp_page() {
 					<li>Change the order of the fields/columns in the report</li>
 					<li>Save multiple report presets to save time when generating different reports</li>
 				</ul>
-				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">More Info &gt;</a>
+				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
+				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
 			</div>');
+	
 	
 	
 	echo('<form action="" method="post">
@@ -175,6 +186,7 @@ function hm_sbp_page() {
 								<option value="product_id"'.($reportSettings['orderby'] == 'product_id' ? ' selected="selected"' : '').'>Product ID</option>
 								<option value="quantity"'.($reportSettings['orderby'] == 'quantity' ? ' selected="selected"' : '').'>Quantity Sold</option>
 								<option value="gross"'.($reportSettings['orderby'] == 'gross' ? ' selected="selected"' : '').'>Gross Sales</option>
+								<option value="gross_after_discount"'.($reportSettings['orderby'] == 'gross_after_discount' ? ' selected="selected"' : '').'>Gross Sales (After Discounts)</option>
 							</select>
 							<select name="orderdir">
 								<option value="asc"'.($reportSettings['orderdir'] == 'asc' ? ' selected="selected"' : '').'>ascending</option>
@@ -221,26 +233,32 @@ function hm_sbp_page() {
 				</table>');
 				
 				
+
 				
 				echo('<p class="submit">
 					<button type="submit" class="button-primary">Get Report</button>
 				</p>
-			</form>
+			</form>');
 			
-			<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; display: inline-block;">
-				<h3 style="margin: 0;">Plugin by:</h3>
-				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-widget-link" target="_blank"><img src="'.plugins_url('images/hm-logo.png', __FILE__).'" alt="Hearken Media" style="width: 250px;" /></a><br />
-				<a href="https://wordpress.org/support/view/plugin-reviews/product-sales-report-for-woocommerce" target="_blank"><strong>
-					If you find this plugin useful, please write a brief review!
-				</strong></a>
-			</div>
+				echo('
+				<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; display: inline-block;">
+					<h3 style="margin: 0;">Plugin by:</h3>
+					<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-widget-link" target="_blank"><img src="'.plugins_url('images/hm-logo.png', __FILE__).'" alt="Hearken Media" style="width: 250px;" /></a><br />
+					<a href="https://wordpress.org/support/view/plugin-reviews/product-sales-report-for-woocommerce" target="_blank"><strong>
+						If you find this plugin useful, please write a brief review!
+					</strong></a>
+				</div>
+				');
+
 			
+	echo('
 		</div>
 		
 		<script type="text/javascript" src="'.plugins_url('js/hm-product-sales-report.js', __FILE__).'"></script>
 	');
 	
 	
+
 
 }
 
@@ -267,6 +285,7 @@ function hm_sbp_on_init() {
 		$savedReportSettings = get_option('hm_psr_report_settings');
 		$savedReportSettings[0] = array_merge(hm_psr_default_report_settings(), $newSettings);
 		
+
 		update_option('hm_psr_report_settings', $savedReportSettings);
 		
 		// Check if no fields are selected
@@ -365,7 +384,7 @@ function hm_sbp_export_body($dest) {
 	}
 	
 	// Assemble order by string
-	$orderby = (in_array($_POST['orderby'], array('product_id', 'gross')) ? $_POST['orderby'] : 'quantity');
+	$orderby = (in_array($_POST['orderby'], array('product_id', 'gross', 'gross_after_discount')) ? $_POST['orderby'] : 'quantity');
 	$orderby .= ' '.($_POST['orderdir'] == 'asc' ? 'ASC' : 'DESC');
 	
 	// Create a new WC_Admin_Report object
@@ -377,6 +396,7 @@ function hm_sbp_export_body($dest) {
 	// Get report data
 	
 	
+
 		// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 		$sold_products = $wc_report->get_order_report_data(array(
 			'data' => array(
@@ -413,6 +433,7 @@ function hm_sbp_export_body($dest) {
 			'order_types' => wc_get_order_types('order_count')
 		));
 	
+
 	
 	// Output report rows
 	foreach ($sold_products as $product) {
