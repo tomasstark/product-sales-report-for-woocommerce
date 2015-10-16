@@ -3,7 +3,7 @@ Contributors: hearken
 Tags: woocommerce, sales, report, export, csv
 Requires at least: 4.0
 Tested up to: 4.3.1
-Stable tag: 1.1.6
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,15 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.2 =
+* Added Product Categories field
+
+= 1.1.7 =
+* Added Variation SKU field
+
+= 1.1.6 =
+* Added Gross Sales (After Discounts) as sort field
 
 = 1.1.5 =
 * Added field for gross sales after discounts
