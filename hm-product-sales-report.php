@@ -2,15 +2,12 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.1.6
+ * Version: 1.2
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
  * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
-
-
-
 
 define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
 
@@ -60,6 +57,7 @@ function hm_sbp_page() {
 		'variation_id' => 'Variation ID',
 		'product_sku' => 'Product SKU',
 		'product_name' => 'Product Name',
+		'product_categories' => 'Product Categories',
 		'variation_attributes' => 'Variation Attributes',
 		'quantity_sold' => 'Quantity Sold',
 		'gross_sales' => 'Gross Sales',
@@ -98,6 +96,7 @@ function hm_sbp_page() {
 					<li>Report on product variations individually</li>
 					<li>Change the order of the fields/columns in the report</li>
 					<li>Save multiple report presets to save time when generating different reports</li>
+					<li>Send the report as an email attachment</li>
 				</ul>
 				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
 				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
@@ -345,6 +344,9 @@ function hm_sbp_export_header($dest) {
 			case 'gross_after_discount':
 				$header[] = 'Gross Sales (After Discounts)';
 				break;
+			case 'product_categories':
+				$header[] = 'Product Categories';
+				break;
 		}
 	}
 	
@@ -466,6 +468,13 @@ function hm_sbp_export_body($dest) {
 					break;
 				case 'gross_after_discount':
 					$row[] = $product->gross_after_discount;
+					break;
+				case 'product_categories':
+					$terms = get_the_terms($product->product_id, 'product_cat');
+					$categories = array();
+					foreach ($terms as $term)
+						$categories[] = $term->name;
+					$row[] = implode(', ', $categories);
 					break;
 			}
 		}
