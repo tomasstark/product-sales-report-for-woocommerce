@@ -37,6 +37,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixed bug affecting products with no categories
+
 = 1.2 =
 * Added Product Categories field
 
