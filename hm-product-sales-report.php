@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -13,9 +13,10 @@ define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
 
 
 // Add the Product Sales Report to the WordPress admin
-add_action('admin_menu', function() {
+add_action('admin_menu', 'hm_psr_admin_menu');
+function hm_psr_admin_menu() {
 	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbp', 'hm_sbp_page');
-});
+}
 
 function hm_psr_default_report_settings() {
 	return array(
