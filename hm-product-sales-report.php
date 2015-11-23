@@ -69,7 +69,7 @@ function hm_sbp_page() {
 	// Print header
 	echo('
 		<div class="wrap">
-			<h2>Product Sales Report'.'</h2>
+			<h2>Product Sales Report</h2>
 	');
 	
 	// Check for WooCommerce
