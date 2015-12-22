@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -91,14 +91,16 @@ function hm_sbp_page() {
 	// Print form
 	
 	
-		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px;">
-				<h3 style="margin: 0;">Upgrade to Product Sales Report Pro for the following additional features:</h3>
+		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; max-width: 800px;">
+				<h3 style="margin: 0;">Upgrade to <a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</h3>
 				<ul>
-					<li>Report on product variations individually</li>
-					<li>Optionally include products with no sales (note: does not report on individual product variations with no sales)</li>
-					<li>Change the order of the fields/columns in the report</li>
-					<li>Save multiple report presets to save time when generating different reports</li>
-					<li>Send the report as an email attachment</li>
+<li>Report on product variations individually.</li>
+<li>Optionally include products with no sales (note: does not report on individual product variations with no sales).</li>
+<li>Change the names of fields in the report.</li>
+<li>Change the order of the fields/columns in the report.</li>
+<li>Include <strong style="color: #f00;">any custom field</strong> defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).</li>
+<li>Save multiple report presets to save time when generating different reports.</li>
+<li>Send the report as an email attachment.</li>
 				</ul>
 				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
 				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
@@ -247,7 +249,9 @@ function hm_sbp_page() {
 					<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-widget-link" target="_blank"><img src="'.plugins_url('images/hm-logo.png', __FILE__).'" alt="Hearken Media" style="width: 250px;" /></a><br />
 					<a href="https://wordpress.org/support/view/plugin-reviews/product-sales-report-for-woocommerce" target="_blank"><strong>
 						If you find this plugin useful, please write a brief review!
-					</strong></a>
+					</strong></a><br /><br />
+					<a href="https://twitter.com/hearkenmedia" class="twitter-follow-button" data-show-count="false" data-dnt="true">Follow @hearkenmedia</a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>
 				</div>
 				');
 
@@ -491,7 +495,9 @@ function hm_sbp_export_body($dest) {
 
 add_action('admin_enqueue_scripts', 'hm_psr_admin_enqueue_scripts');
 function hm_psr_admin_enqueue_scripts() {
-	wp_register_style('hm_psr_admin_style', plugins_url('css/hm-product-sales-report.css', __FILE__));
-	wp_enqueue_style('hm_psr_admin_style');
+	wp_enqueue_style('hm_psr_admin_style', plugins_url('css/hm-product-sales-report.css', __FILE__));
+	wp_enqueue_style('pikaday', plugins_url('css/pikaday.css', __FILE__));
+	wp_enqueue_script('moment', plugins_url('js/moment.min.js', __FILE__));
+	wp_enqueue_script('pikaday', plugins_url('js/pikaday.js', __FILE__));
 }
 ?>
