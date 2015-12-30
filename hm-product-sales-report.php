@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -96,10 +96,10 @@ function hm_sbp_page() {
 				<ul>
 <li>Report on product variations individually.</li>
 <li>Optionally include products with no sales (note: does not report on individual product variations with no sales).</li>
-<li>Change the names of fields in the report.</li>
-<li>Change the order of the fields/columns in the report.</li>
+<li>Change the names and order of fields in the report.</li>
 <li>Include <strong style="color: #f00;">any custom field</strong> defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).</li>
 <li>Save multiple report presets to save time when generating different reports.</li>
+<li>Export in Excel (XLSX or XLS) format.</li>
 <li>Send the report as an email attachment.</li>
 				</ul>
 				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
@@ -252,6 +252,9 @@ function hm_sbp_page() {
 					</strong></a><br /><br />
 					<a href="https://twitter.com/hearkenmedia" class="twitter-follow-button" data-show-count="false" data-dnt="true">Follow @hearkenmedia</a>
 					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>
+					<h4>More <strong style="color: #f00;">free</strong> plugins for WooCommerce:</h4>
+					<a href="https://wordpress.org/plugins/export-order-items-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/xoiwc-icon.png', __FILE__).'" alt="Export Order Items" /></a>
+					<a href="https://wordpress.org/plugins/stock-export-and-import-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/sxiwc-icon.png', __FILE__).'" alt="Stock Export and Import" /></a>
 				</div>
 				');
 
