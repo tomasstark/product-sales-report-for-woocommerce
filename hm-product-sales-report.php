@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.2.5
+ * Version: 1.2.6
  * Author: Hearken Media
  * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
  * License: GNU General Public License version 2 or later
@@ -364,7 +364,7 @@ function hm_sbp_export_header($dest) {
 
 // This function generates and outputs the report body rows
 function hm_sbp_export_body($dest) {
-	global $woocommerce;
+	global $woocommerce, $wpdb;
 	
 	// If a category was selected, fetch all the product IDs in that category
 	$category_id = (isset($_POST['cat']) && is_numeric($_POST['cat']) ? $_POST['cat'] : 0);
@@ -406,7 +406,8 @@ function hm_sbp_export_body($dest) {
 
 	// Get report data
 	
-	
+	// Avoid max join size error
+	$wpdb->query('SET SQL_BIG_SELECTS=1');
 
 		// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 		$sold_products = $wc_report->get_order_report_data(array(
