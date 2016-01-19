@@ -3,7 +3,7 @@ Contributors: hearken
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 4.0
 Tested up to: 4.4
-Stable tag: 1.2.6
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.3 =
+* Added a View Report option
 
 = 1.2.4 =
 * Added a date picker for browsers without support for the HTML5 date input

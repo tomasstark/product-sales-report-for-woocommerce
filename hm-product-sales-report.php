@@ -2,14 +2,14 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.2.6
- * Author: Hearken Media
- * Author URI: http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-widget-link
+ * Version: 1.3
+ * Author: Potent Plugins
+ * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-credit-link
  * License: GNU General Public License version 2 or later
  * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
 
-define('HM_PSR_IS_PRO', class_exists('HM_Product_Sales_Report_Pro'));
+define('HM_PSR_IS_PRO', false);
 
 
 // Add the Product Sales Report to the WordPress admin
@@ -92,7 +92,7 @@ function hm_sbp_page() {
 	
 	
 		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; max-width: 800px;">
-				<h3 style="margin: 0;">Upgrade to <a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</h3>
+				<h3 style="margin: 0;">Upgrade to <a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</h3>
 				<ul>
 <li>Report on product variations individually.</li>
 <li>Optionally include products with no sales (note: does not report on individual product variations with no sales).</li>
@@ -103,12 +103,12 @@ function hm_sbp_page() {
 <li>Send the report as an email attachment.</li>
 				</ul>
 				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
-				<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
+				<a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
 			</div>');
 	
 	
 	
-	echo('<form action="" method="post">
+	echo('<form action="#hm_sbp_table" method="post">
 				<input type="hidden" name="hm_sbp_do_export" value="1" />
 		');
 	wp_nonce_field('hm_sbp_do_export');
@@ -235,28 +235,42 @@ function hm_sbp_page() {
 					</tr>
 				</table>');
 				
-				
-
-				
 				echo('<p class="submit">
-					<button type="submit" class="button-primary">Get Report</button>
+					<button type="submit" class="button-primary" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'\'); return true;">View Report</button>
+					<button type="submit" class="button-primary" name="hm_sbp_download" value="1" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'_blank\'); return true;">Download Report as CSV</button>
 				</p>
 			</form>');
 			
-				echo('
-				<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; display: inline-block;">
-					<h3 style="margin: 0;">Plugin by:</h3>
-					<a href="http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-widget-link" target="_blank"><img src="'.plugins_url('images/hm-logo.png', __FILE__).'" alt="Hearken Media" style="width: 250px;" /></a><br />
-					<a href="https://wordpress.org/support/view/plugin-reviews/product-sales-report-for-woocommerce" target="_blank"><strong>
-						If you find this plugin useful, please write a brief review!
-					</strong></a><br /><br />
-					<a href="https://twitter.com/hearkenmedia" class="twitter-follow-button" data-show-count="false" data-dnt="true">Follow @hearkenmedia</a>
-					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>
-					<h4>More <strong style="color: #f00;">free</strong> plugins for WooCommerce:</h4>
-					<a href="https://wordpress.org/plugins/export-order-items-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/xoiwc-icon.png', __FILE__).'" alt="Export Order Items" /></a>
-					<a href="https://wordpress.org/plugins/stock-export-and-import-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/sxiwc-icon.png', __FILE__).'" alt="Stock Export and Import" /></a>
-				</div>
-				');
+			
+			if (!empty($_POST['hm_sbp_do_export'])) {
+				echo('<table id="hm_sbp_table">');
+				if (!empty($_POST['include_header'])) {
+					echo('<thead><tr>');
+					foreach (hm_sbp_export_header(null, true) as $rowItem)
+						echo('<th>'.htmlspecialchars($rowItem).'</th>');
+					echo('</tr></thead>');
+				}
+				echo('<tbody>');
+				foreach (hm_sbp_export_body(null, true) as $row) {
+					echo('<tr>');
+					foreach ($row as $rowItem) {
+						echo('<td>'.htmlspecialchars($rowItem).'</td>');
+					}
+					echo('</tr>');
+				}
+				echo('</tbody></table>');
+				
+			}
+			
+			$potent_slug = 'product-sales-report-for-woocommerce';
+			include(__DIR__.'/plugin-credit.php');
+			
+			echo('
+				<h4>More <strong style="color: #f00;">free</strong> plugins for WooCommerce:</h4>
+				<a href="https://wordpress.org/plugins/export-order-items-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/xoiwc-icon.png', __FILE__).'" alt="Export Order Items" /></a>
+				<a href="https://wordpress.org/plugins/stock-export-and-import-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/sxiwc-icon.png', __FILE__).'" alt="Stock Export and Import" /></a>
+				<a href="https://wordpress.org/plugins/donations-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/wcdon-icon.png', __FILE__).'" alt="Donations" /></a>
+			');
 
 			
 	echo('
@@ -296,9 +310,10 @@ function hm_sbp_on_init() {
 
 		update_option('hm_psr_report_settings', $savedReportSettings);
 		
-		// Check if no fields are selected
-		if (empty($_POST['fields']))
+		// Check if no fields are selected or if not downloading
+		if (empty($_POST['fields']) || empty($_POST['hm_sbp_download']))
 			return;
+		
 		
 		// Assemble the filename for the report download
 		$filename =  'Product Sales - ';
@@ -324,7 +339,7 @@ function hm_sbp_on_init() {
 }
 
 // This function outputs the report header row
-function hm_sbp_export_header($dest) {
+function hm_sbp_export_header($dest, $return=false) {
 	$header = array();
 	
 	foreach ($_POST['fields'] as $field) {
@@ -359,11 +374,13 @@ function hm_sbp_export_header($dest) {
 		}
 	}
 	
+	if ($return)
+		return $header;
 	fputcsv($dest, $header);
 }
 
 // This function generates and outputs the report body rows
-function hm_sbp_export_body($dest) {
+function hm_sbp_export_body($dest, $return=false) {
 	global $woocommerce, $wpdb;
 	
 	// If a category was selected, fetch all the product IDs in that category
@@ -445,8 +462,9 @@ function hm_sbp_export_body($dest) {
 			'order_types' => wc_get_order_types('order_count')
 		));
 	
+	if ($return)
+		$rows = array();
 
-	
 	// Output report rows
 	foreach ($sold_products as $product) {
 		if (!empty($category_id) && !in_array($product->product_id, $product_ids))
@@ -493,8 +511,13 @@ function hm_sbp_export_body($dest) {
 			}
 		}
 			
-		fputcsv($dest, $row);
+		if ($return)
+			$rows[] = $row;
+		else
+			fputcsv($dest, $row);
 	}
+	if ($return)
+		return $rows;
 }
 
 add_action('admin_enqueue_scripts', 'hm_psr_admin_enqueue_scripts');
