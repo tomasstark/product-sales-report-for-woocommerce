@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.3
+ * Version: 1.3.1
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-credit-link
  * License: GNU General Public License version 2 or later
@@ -526,5 +526,34 @@ function hm_psr_admin_enqueue_scripts() {
 	wp_enqueue_style('pikaday', plugins_url('css/pikaday.css', __FILE__));
 	wp_enqueue_script('moment', plugins_url('js/moment.min.js', __FILE__));
 	wp_enqueue_script('pikaday', plugins_url('js/pikaday.js', __FILE__));
+}
+
+/* Review/donate notice */
+
+register_activation_hook(__FILE__, 'hm_psr_first_activate');
+function hm_psr_first_activate() {
+	$pre = 'hm_psr';
+	$firstActivate = get_option($pre.'_first_activate');
+	if (empty($firstActivate)) {
+		update_option($pre.'_first_activate', time());
+	}
+}
+if (is_admin() && get_option('hm_psr_rd_notice_hidden') != 1 && time() - get_option('hm_psr_first_activate') >= (14*3600)) {
+	add_action('admin_notices', 'hm_psr_rd_notice');
+	add_action('wp_ajax_hm_psr_rd_notice_hide', 'hm_psr_rd_notice_hide');
+}
+function hm_psr_rd_notice() {
+	$pre = 'hm_psr';
+	$slug = 'product-sales-report-for-woocommerce';
+	echo('
+		<div id="'.$pre.'_rd_notice" class="updated notice is-dismissible"><p>Do you use the <strong>Product Sales Report</strong> plugin?
+		Please support our free plugin by <a href="https://wordpress.org/support/view/plugin-reviews/'.$slug.'" target="_blank">writing a review</a> and/or <a href="https://potentplugins.com/donate/?utm_source='.$slug.'&amp;utm_medium=link&amp;utm_campaign=wp-plugin-notice-donate-link" target="_blank">making a donation</a>!
+		Thanks!</p></div>
+		<script>jQuery(document).ready(function($){$(\'#'.$pre.'_rd_notice\').on(\'click\', \'.notice-dismiss\', function(){jQuery.post(ajaxurl, {action:\'hm_psr_rd_notice_hide\'})});});</script>
+	');
+}
+function hm_psr_rd_notice_hide() {
+	$pre = 'hm_psr';
+	update_option($pre.'_rd_notice_hidden', 1);
 }
 ?>
