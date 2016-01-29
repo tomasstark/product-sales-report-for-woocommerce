@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-credit-link
  * License: GNU General Public License version 2 or later
@@ -30,7 +30,8 @@ function hm_psr_default_report_settings() {
 		'fields' => array('product_id', 'product_sku', 'product_name', 'quantity_sold', 'gross_sales'),
 		'limit_on' => 0,
 		'limit' => 10,
-		'include_header' => 1
+		'include_header' => 1,
+		'exclude_free' => 0
 	);
 }
 
@@ -214,6 +215,15 @@ function hm_sbp_page() {
 	}
 	unset($fieldOptions2);
 				echo('</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row" colspan="2" class="th-full">
+							<label>
+								<input type="checkbox" name="exclude_free"'.(empty($reportSettings['exclude_free']) ? '' : ' checked="checked"').' />
+								Exclude free products
+							</label>
+							<p class="description">If checked, order line items with a total amount of zero (after discounts) will be excluded from the report calculations.</p>
+						</th>
 					</tr>
 					<tr valign="top">
 						<th scope="row" colspan="2" class="th-full">
@@ -456,6 +466,14 @@ function hm_sbp_export_body($dest, $return=false) {
 			),
 			'query_type' => 'get_results',
 			'group_by' => 'product_id',
+			'where_meta' => (empty($_POST['exclude_free']) ? array() : array(
+				array(
+					'meta_key' => '_line_total',
+					'meta_value' => 0,
+					'operator' => '!=',
+					'type' => 'order_item_meta'
+				)
+			)),
 			'order_by' => $orderby,
 			'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
 			'filter_range' => ($_POST['report_time'] != 'all'),

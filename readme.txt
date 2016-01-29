@@ -4,7 +4,7 @@ Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-f
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 4.0
 Tested up to: 4.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.3.2 =
+* Added an option to exclude free products
 
 = 1.3 =
 * Added a View Report option
