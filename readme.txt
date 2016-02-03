@@ -3,8 +3,8 @@ Contributors: hearken
 Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-readme-donate-link
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 4.0
-Tested up to: 4.4
-Stable tag: 1.3.2
+Tested up to: 4.5
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,17 +17,21 @@ The Product Sales Report plugin generates reports on the quantity and gross sale
 Features:
 
 * Use a date range preset, or specify custom start and end dates.
-* Report on all products in your store, or limit the report to only products within a single category.
+* Report on all products in your store, or limit the report to only include products within certain categories or only specific product IDs.
+* Limit the report to orders with certain statuses (e.g. Processing, Complete, or Refunded).
 * Customize the report sorting order (sort by Product ID, Quantity Sold, or Gross Sales).
 
 A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) with the following additional features is also available:
 
 * Report on product variations individually.
 * Optionally include products with no sales (note: does not report on individual product variations with no sales).
+* Report on shipping methods used (Product ID, Product Name, Quantity Sold, and Gross Sales fields only).
+* Limit the report to orders with a matching custom meta field (e.g. delivery date).
 * Change the names of fields in the report.
 * Change the order of the fields/columns in the report.
 * Include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
 * Save multiple report presets to save time when generating different reports.
+* Export in Excel (XLSX or XLS) format.
 * Send the report as an email attachment.
 
 
@@ -44,10 +48,15 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 
 == Screenshots ==
 
-1. Report generation screen
+1. Report options
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.4 =
+* Added the ability to select multiple product categories
+* Added an option to limit the report to specified product IDs
+* Added an option to limit the report to orders with specified statuses
 
 = 1.3.2 =
 * Added an option to exclude free products
