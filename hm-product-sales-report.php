@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4
+ * Version: 1.4.1
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-credit-link
  * License: GNU General Public License version 2 or later
@@ -593,6 +593,40 @@ function hm_psr_admin_enqueue_scripts() {
 	wp_enqueue_style('pikaday', plugins_url('css/pikaday.css', __FILE__));
 	wp_enqueue_script('moment', plugins_url('js/moment.min.js', __FILE__));
 	wp_enqueue_script('pikaday', plugins_url('js/pikaday.js', __FILE__));
+}
+
+// Schedulable email report hook
+add_filter('pp_wc_get_schedulable_email_reports', 'hm_psr_add_schedulable_email_reports');
+function hm_psr_add_schedulable_email_reports($reports) {
+	$reports['hm_psr'] = array(
+		'name' => 'Product Sales Report',
+		'callback' => 'hm_psr_run_scheduled_report',
+		'reports' => array(
+			'last' => 'Last used settings'
+		)
+	);
+	return $reports;
+}
+
+function hm_psr_run_scheduled_report($reportId, $start, $end) {
+	$savedReportSettings = get_option('hm_psr_report_settings');
+	if (!isset($savedReportSettings[0]))
+		return false;
+	$prevPost = $_POST;
+	$_POST = $savedReportSettings[0];
+	$_POST['report_time'] = 'custom';
+	$_POST['report_start'] = date('Y-m-d', $start);
+	$_POST['report_end'] = date('Y-m-d', $end);
+	
+	
+	$filename = get_temp_dir().'/Product Sales Report.csv';
+	$out = fopen($filename, 'w');
+	if (!empty($_POST['include_header']))
+		hm_sbp_export_header($out);
+	hm_sbp_export_body($out);
+	fclose($out);
+	
+	return $filename;
 }
 
 /* Review/donate notice */
