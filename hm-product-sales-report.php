@@ -2,14 +2,12 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.1
+ * Version: 1.4.2
  * Author: Potent Plugins
- * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-credit-link
+ * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
  * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  */
-
-define('HM_PSR_IS_PRO', false);
 
 
 // Add the Product Sales Report to the WordPress admin
@@ -91,37 +89,13 @@ function hm_sbp_page() {
 		return;
 	}
 	
-	
-	
-	// Check for license
-	if (HM_PSR_IS_PRO && !HM_Product_Sales_Report_Pro::licenseCheck())
-		return;
-	
-	
 	// Print form
 	
-	
-		echo('<div style="background-color: #fff; border: 1px solid #ccc; padding: 20px; max-width: 800px;">
-				<h3 style="margin-top: 0; margin-bottom: 10px; font-size: 20px;">Upgrade to <a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</h3>
-				<ul>
-<li>Report on product variations individually.</li>
-<li>Optionally include products with no sales (note: does not report on individual product variations with no sales).</li>
-<li>Report on shipping methods used (Product ID, Product Name, Quantity Sold, and Gross Sales fields only).</li>
-<li>Limit the report to orders with a matching custom meta field (e.g. delivery date).</li>
-<li>Change the names and order of fields in the report.</li>
-<li>Include <strong style="color: #f00;">any custom field</strong> defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).</li>
-<li>Save multiple report presets to save time when generating different reports.</li>
-<li>Export in Excel (XLSX or XLS) format.</li>
-<li>Send the report as an email attachment.</li>
-				</ul>
-				<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
-				<a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
-			</div>');
-	
-	
-	
-	echo('<form action="#hm_sbp_table" method="post">
-				<input type="hidden" name="hm_sbp_do_export" value="1" />
+	echo('<div id="poststuff">
+			<div id="post-body" class="columns-2">
+				<div id="post-body-content" style="position: relative;">
+					<form action="#hm_sbp_table" method="post">
+						<input type="hidden" name="hm_sbp_do_export" value="1" />
 		');
 	wp_nonce_field('hm_sbp_do_export');
 	echo('
@@ -195,8 +169,8 @@ function hm_sbp_page() {
 								Group product variations together
 							</label><br />
 							<label>
-								<input type="radio" name="variations" value="1"'.(empty($reportSettings['variations']) ? '' : ' checked="checked"').(HM_PSR_IS_PRO ? '' : ' disabled="disabled"').' class="variations-fld" />
-								Report on each variation separately'.(HM_PSR_IS_PRO ? '' : '<sup style="color: #f00;">PRO</sup>').'
+								<input type="radio" name="variations" value="1" disabled="disabled" class="variations-fld" />
+								Report on each variation separately<sup style="color: #f00;">PRO</sup>
 							</label>
 						</td>
 					</tr>
@@ -268,7 +242,51 @@ function hm_sbp_page() {
 					<button type="submit" class="button-primary" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'\'); return true;">View Report</button>
 					<button type="submit" class="button-primary" name="hm_sbp_download" value="1" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'_blank\'); return true;">Download Report as CSV</button>
 				</p>
-			</form>');
+			</form>
+			
+			</div> <!-- /post-body-content -->
+			
+			<div id="postbox-container-1" class="postbox-container">
+				<div id="side-sortables" class="meta-box-sortables">
+				
+					<div class="postbox">
+						<h2><a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Upgrade to Pro</a></h2>
+						<div class="inside">
+							<p><strong>Upgrade to <a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</strong></p>
+							<ul style="list-style-type: disc; padding-left: 1.5em;">
+<li>Report on product variations individually.</li>
+<li>Optionally include products with no sales.</li>
+<li>Report on shipping methods used.</li>
+<li>Limit the report to orders with a matching custom meta field (e.g. delivery date).</li>
+<li>Change the names and order of fields in the report.</li>
+<li>Include <strong style="color: #f00;">any custom field</strong> associated with a product.</li>
+<li>Save multiple report presets to save time when generating different reports.</li>
+<li>Export in Excel (XLSX or XLS) format.</li>
+<li>Send the report as an email attachment.</li>
+							</ul>
+							<p>
+								<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
+								<a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
+							</p>
+						</div>
+					</div>
+					
+					<div class="postbox">
+						<h2><a href="https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Schedule Email Reports</a></h2>
+						<div class="inside">
+							<strong>Automatically send reports as email attachments on a recurring schedule.</strong><br />
+							<a href="https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Get the add-on plugin &gt;</a>
+						</div>
+					</div>
+					
+				</div> <!-- /side-sortables-->
+			</div><!-- /postbox-container-1 -->
+			
+			</div> <!-- /post-body -->
+			<br class="clear" />
+			</div> <!-- /poststuff -->
+			
+			');
 			
 			
 			if (!empty($_POST['hm_sbp_do_export'])) {
@@ -552,9 +570,6 @@ function hm_sbp_export_body($dest, $return=false) {
 				case 'product_name':
 					$row[] = html_entity_decode(get_the_title($product->product_id));
 					break;
-				case 'variation_attributes':
-					$row[] = (HM_PSR_IS_PRO ? HM_Product_Sales_Report_Pro::getFormattedVariationAttributes($product) : '');
-					break;
 				case 'quantity_sold':
 					$row[] = $product->quantity;
 					break;
@@ -608,7 +623,7 @@ function hm_psr_add_schedulable_email_reports($reports) {
 	return $reports;
 }
 
-function hm_psr_run_scheduled_report($reportId, $start, $end) {
+function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $output=false) {
 	$savedReportSettings = get_option('hm_psr_report_settings');
 	if (!isset($savedReportSettings[0]))
 		return false;
@@ -617,7 +632,23 @@ function hm_psr_run_scheduled_report($reportId, $start, $end) {
 	$_POST['report_time'] = 'custom';
 	$_POST['report_start'] = date('Y-m-d', $start);
 	$_POST['report_end'] = date('Y-m-d', $end);
+	$_POST = array_merge($_POST, array_intersect_key($args, $_POST));
 	
+	if ($output) {
+		echo('<table><thead><tr>');
+		foreach (hm_sbp_export_header(null, true) as $heading) {
+			echo("<th>$heading</th>");
+		}
+		echo('</tr></thead><tbody>');
+		foreach (hm_sbp_export_body(null, true) as $row) {
+			echo('<tr>');
+			foreach ($row as $cell)
+				echo('<td>'.htmlspecialchars($cell).'</td>');
+			echo('</tr>');
+		}
+		echo('</tbody></table>');
+		return;
+	}
 	
 	$filename = get_temp_dir().'/Product Sales Report.csv';
 	$out = fopen($filename, 'w');
