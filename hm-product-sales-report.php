@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.3
+ * Version: 1.4.4
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
@@ -276,6 +276,13 @@ function hm_sbp_page() {
 						<div class="inside">
 							<strong>Automatically send reports as email attachments on a recurring schedule.</strong><br />
 							<a href="https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Get the add-on plugin &gt;</a>
+						</div>
+					</div>
+					<div class="postbox">
+						<h2><a href="https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Embed Report in Frontend Pages</a></h2>
+						<div class="inside">
+							<strong>Display the report or a download link in posts and pages using a shortcode.</strong><br />
+							<a href="https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Get the add-on plugin &gt;</a>
 						</div>
 					</div>
 					
@@ -647,6 +654,7 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 			echo('</tr>');
 		}
 		echo('</tbody></table>');
+		$_POST = $prevPost;
 		return;
 	}
 	
@@ -656,6 +664,8 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 		hm_sbp_export_header($out);
 	hm_sbp_export_body($out);
 	fclose($out);
+	
+	$_POST = $prevPost;
 	
 	return $filename;
 }
