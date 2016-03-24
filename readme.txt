@@ -2,7 +2,7 @@
 Contributors: hearken
 Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-readme-donate-link
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
-Requires at least: 4.0
+Requires at least: 3.5
 Tested up to: 4.5
 Stable tag: 1.4.3
 License: GPLv2 or later
@@ -20,8 +20,8 @@ Features:
 * Report on all products in your store, or limit the report to only include products within certain categories or only specific product IDs.
 * Limit the report to orders with certain statuses (e.g. Processing, Complete, or Refunded).
 * Customize the report sorting order (sort by Product ID, Quantity Sold, or Gross Sales).
-* Schedule the report to be sent automatically by email on a recurring basis with the [Scheduled Email Reports for WooCommerce](https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/) addon.
-* Embed the report or a download link in posts and pages with the [Frontend Reports for WooCommerce](https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/) addon.
+* Schedule the report to be sent automatically by email on a recurring basis with the [Scheduled Email Reports for WooCommerce](https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) addon.
+* Embed the report or a download link in posts and pages with the [Frontend Reports for WooCommerce](https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) addon.
 
 A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) with the following additional features is also available:
 
@@ -37,7 +37,6 @@ A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product
 * Send the report as an email attachment.
 
 If you like this free plugin, please consider [making a donation](https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-repo-donate-link).
-
 
 == Installation ==
 
