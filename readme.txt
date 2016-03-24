@@ -20,6 +20,8 @@ Features:
 * Report on all products in your store, or limit the report to only include products within certain categories or only specific product IDs.
 * Limit the report to orders with certain statuses (e.g. Processing, Complete, or Refunded).
 * Customize the report sorting order (sort by Product ID, Quantity Sold, or Gross Sales).
+* Schedule the report to be sent automatically by email on a recurring basis with the [Scheduled Email Reports for WooCommerce](https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/) addon.
+* Embed the report or a download link in posts and pages with the [Frontend Reports for WooCommerce](https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/) addon.
 
 A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) with the following additional features is also available:
 
@@ -33,6 +35,8 @@ A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product
 * Save multiple report presets to save time when generating different reports.
 * Export in Excel (XLSX or XLS) format.
 * Send the report as an email attachment.
+
+If you like this free plugin, please consider [making a donation](https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-repo-donate-link).
 
 
 == Installation ==
