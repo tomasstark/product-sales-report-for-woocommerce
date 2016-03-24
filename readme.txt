@@ -23,7 +23,7 @@ Features:
 * Schedule the report to be sent automatically by email on a recurring basis with the [Scheduled Email Reports for WooCommerce](https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) addon.
 * Embed the report or a download link in posts and pages with the [Frontend Reports for WooCommerce](https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) addon.
 
-A [pro version](http://hearkenmedia.com/landing-wp-plugin.php?utm_source=product-sales-report&utm_medium=link&utm_campaign=wp-repo-upgrade-link) with the following additional features is also available:
+A [pro version](https://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-repo-upgrade-link) with the following additional features is also available:
 
 * Report on product variations individually.
 * Optionally include products with no sales (note: does not report on individual product variations with no sales).
