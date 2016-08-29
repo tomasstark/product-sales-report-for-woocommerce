@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.4
+ * Version: 1.4.5
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
@@ -342,7 +342,7 @@ function hm_sbp_page() {
 
 // Hook into WordPress init; this function performs report generation when
 // the admin form is submitted
-add_action('init', 'hm_sbp_on_init');
+add_action('init', 'hm_sbp_on_init', 9999);
 function hm_sbp_on_init() {
 	global $pagenow;
 	
