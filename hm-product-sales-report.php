@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.5
+ * Version: 1.4.6
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
@@ -486,14 +486,6 @@ function hm_sbp_export_body($dest, $return=false) {
 	$wc_report = new WC_Admin_Report();
 	$wc_report->start_date = $start_date;
 	$wc_report->end_date = $end_date;
-
-	// Order status filter
-	$wcOrderStatuses = wc_get_order_statuses();
-	$orderStatuses = array();
-	foreach ($_POST['order_statuses'] as $orderStatus) {
-		if (isset($wcOrderStatuses[$orderStatus]))
-			$orderStatuses[] = substr($orderStatus, 3);
-	}
 	
 	$where_meta = array();
 	if ($_POST['products'] != 'all') {
@@ -517,44 +509,50 @@ function hm_sbp_export_body($dest, $return=false) {
 	
 	// Avoid max join size error
 	$wpdb->query('SET SQL_BIG_SELECTS=1');
-
-		// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
-		$sold_products = $wc_report->get_order_report_data(array(
-			'data' => array(
-				'_product_id' => array(
-					'type' => 'order_item_meta',
-					'order_item_type' => 'line_item',
-					'function' => '',
-					'name' => 'product_id'
-				),
-				'_qty' => array(
-					'type' => 'order_item_meta',
-					'order_item_type' => 'line_item',
-					'function' => 'SUM',
-					'name' => 'quantity'
-				),
-				'_line_subtotal' => array(
-					'type' => 'order_item_meta',
-					'order_item_type' => 'line_item',
-					'function' => 'SUM',
-					'name' => 'gross'
-				),
-				'_line_total' => array(
-					'type' => 'order_item_meta',
-					'order_item_type' => 'line_item',
-					'function' => 'SUM',
-					'name' => 'gross_after_discount'
-				)
+	
+	// Prevent plugins from overriding the order status filter
+	add_filter('woocommerce_reports_order_statuses', 'hm_psr_report_order_statuses', 9999);
+	
+	// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
+	$sold_products = $wc_report->get_order_report_data(array(
+		'data' => array(
+			'_product_id' => array(
+				'type' => 'order_item_meta',
+				'order_item_type' => 'line_item',
+				'function' => '',
+				'name' => 'product_id'
 			),
-			'query_type' => 'get_results',
-			'group_by' => 'product_id',
-			'where_meta' => $where_meta,
-			'order_by' => $orderby,
-			'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
-			'filter_range' => ($_POST['report_time'] != 'all'),
-			'order_types' => wc_get_order_types('order_count'),
-			'order_status' => $orderStatuses
-		));
+			'_qty' => array(
+				'type' => 'order_item_meta',
+				'order_item_type' => 'line_item',
+				'function' => 'SUM',
+				'name' => 'quantity'
+			),
+			'_line_subtotal' => array(
+				'type' => 'order_item_meta',
+				'order_item_type' => 'line_item',
+				'function' => 'SUM',
+				'name' => 'gross'
+			),
+			'_line_total' => array(
+				'type' => 'order_item_meta',
+				'order_item_type' => 'line_item',
+				'function' => 'SUM',
+				'name' => 'gross_after_discount'
+			)
+		),
+		'query_type' => 'get_results',
+		'group_by' => 'product_id',
+		'where_meta' => $where_meta,
+		'order_by' => $orderby,
+		'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
+		'filter_range' => ($_POST['report_time'] != 'all'),
+		'order_types' => wc_get_order_types('order_count'),
+		'order_status' => hm_psr_report_order_statuses()
+	));
+	
+	// Remove report order statuses filter
+	remove_filter('woocommerce_reports_order_statuses', 'hm_psr_report_order_statuses', 9999);
 	
 	if ($return)
 		$rows = array();
@@ -668,6 +666,18 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 	$_POST = $prevPost;
 	
 	return $filename;
+}
+
+function hm_psr_report_order_statuses() {
+	$wcOrderStatuses = wc_get_order_statuses();
+	$orderStatuses = array();
+	if (!empty($_POST['order_statuses'])) {
+		foreach ($_POST['order_statuses'] as $orderStatus) {
+			if (isset($wcOrderStatuses[$orderStatus]))
+				$orderStatuses[] = substr($orderStatus, 3);
+		}
+	}
+	return $orderStatuses;
 }
 
 /* Review/donate notice */
