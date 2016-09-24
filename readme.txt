@@ -14,6 +14,8 @@ Generates a report on individual WooCommerce products sold during a specified ti
 
 The Product Sales Report plugin generates reports on the quantity and gross sales of individual WooCommerce products sold over a specified date range. Reports can be downloaded in CSV (Comma-Separated Values) format for further analysis in your spreadsheet software, or for import into other software that supports CSV-formatted data files.
 
+Important note: When used with older versions of WooCommerce, the reported sales quantities may be incorrect for products that had line item refunds during the reporting period. Please keep your copy of WooCommerce up to date to help ensure compatibility and report accuracy.
+
 Features:
 
 * Use a date range preset, or specify custom start and end dates.
