@@ -306,8 +306,7 @@ function hm_sbpf_export_body($dest, $return=false) {
 		'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
 		'filter_range' => ($_POST['report_time'] != 'all'),
 		'order_types' => wc_get_order_types('order_count'),
-		'order_status' => hm_psrf_report_order_statuses(),
-		'debug' => true
+		'order_status' => hm_psrf_report_order_statuses()
 	));
 	
 	// Remove report order statuses filter
