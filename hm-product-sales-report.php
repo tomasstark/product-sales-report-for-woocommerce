@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.6
+ * Version: 1.4.7
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
@@ -11,12 +11,12 @@
 
 
 // Add the Product Sales Report to the WordPress admin
-add_action('admin_menu', 'hm_psr_admin_menu');
-function hm_psr_admin_menu() {
-	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbp', 'hm_sbp_page');
+add_action('admin_menu', 'hm_psrf_admin_menu');
+function hm_psrf_admin_menu() {
+	add_submenu_page('woocommerce', 'Product Sales Report', 'Product Sales Report', 'view_woocommerce_reports', 'hm_sbpf', 'hm_sbpf_page');
 }
 
-function hm_psr_default_report_settings() {
+function hm_psrf_default_report_settings() {
 	return array(
 		'report_time' => '30d',
 		'report_start' => date('Y-m-d', current_time('timestamp') - (86400 * 31)),
@@ -37,7 +37,7 @@ function hm_psr_default_report_settings() {
 }
 
 // This function generates the Product Sales Report page HTML
-function hm_sbp_page() {
+function hm_sbpf_page() {
 
 	$savedReportSettings = get_option('hm_psr_report_settings');
 	if (isset($_POST['op']) && $_POST['op'] == 'preset-del' && !empty($_POST['r']) && isset($savedReportSettings[$_POST['r']])) {
@@ -48,8 +48,8 @@ function hm_sbp_page() {
 	}
 	
 	$reportSettings = (empty($savedReportSettings) ?
-						hm_psr_default_report_settings() :
-						array_merge(hm_psr_default_report_settings(),
+						hm_psrf_default_report_settings() :
+						array_merge(hm_psrf_default_report_settings(),
 								$savedReportSettings[
 									isset($_POST['r']) && isset($savedReportSettings[$_POST['r']]) ? $_POST['r'] : 0
 								]
@@ -73,295 +73,31 @@ function hm_sbp_page() {
 		'gross_after_discount' => 'Gross Sales (After Discounts)'
 	);
 		
-	
-	// Print header
-	echo('
-		<div class="wrap">
-			<h2>Product Sales Report</h2>
-	');
-	
-	// Check for WooCommerce
-	if (!class_exists('WooCommerce')) {
-		echo('<div class="error"><p>This plugin requires that WooCommerce is installed and activated.</p></div></div>');
-		return;
-	} else if (!function_exists('wc_get_order_types')) {
-		echo('<div class="error"><p>The Product Sales Report plugin requires WooCommerce 2.2 or higher. Please update your WooCommerce install.</p></div></div>');
-		return;
-	}
-	
-	// Print form
-	
-	echo('<div id="poststuff">
-			<div id="post-body" class="columns-2">
-				<div id="post-body-content" style="position: relative;">
-					<form action="#hm_sbp_table" method="post">
-						<input type="hidden" name="hm_sbp_do_export" value="1" />
-		');
-	wp_nonce_field('hm_sbp_do_export');
-	echo('
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row">
-							<label for="hm_sbp_field_report_time">Report Period:</label>
-						</th>
-						<td>
-							<select name="report_time" id="hm_sbp_field_report_time">
-								<option value="0d"'.($reportSettings['report_time'] == '0d' ? ' selected="selected"' : '').'>Today</option>
-								<option value="1d"'.($reportSettings['report_time'] == '1d' ? ' selected="selected"' : '').'>Yesterday</option>
-								<option value="7d"'.($reportSettings['report_time'] == '7d' ? ' selected="selected"' : '').'>Last 7 days</option>
-								<option value="30d"'.($reportSettings['report_time'] == '30d' ? ' selected="selected"' : '').'>Last 30 days</option>
-								<option value="all"'.($reportSettings['report_time'] == 'all' ? ' selected="selected"' : '').'>All time</option>
-								<option value="custom"'.($reportSettings['report_time'] == 'custom' ? ' selected="selected"' : '').'>Custom date range</option>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top" class="hm_sbp_custom_time">
-						<th scope="row">
-							<label for="hm_sbp_field_report_start">Start Date:</label>
-						</th>
-						<td>
-							<input type="date" name="report_start" id="hm_sbp_field_report_start" value="'.$reportSettings['report_start'].'" />
-						</td>
-					</tr>
-					<tr valign="top" class="hm_sbp_custom_time">
-						<th scope="row">
-							<label for="hm_sbp_field_report_end">End Date:</label>
-						</th>
-						<td>
-							<input type="date" name="report_end" id="hm_sbp_field_report_end" value="'.$reportSettings['report_end'].'" />
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row">
-							<label>Include Orders With Status:</label>
-						</th>
-						<td>');
-	foreach (wc_get_order_statuses() as $status => $statusName) {
-		echo('<label><input type="checkbox" name="order_statuses[]"'.(in_array($status, $reportSettings['order_statuses']) ? ' checked="checked"' : '').' value="'.$status.'" /> '.$statusName.'</label><br />');
-	}
-				echo('</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row">
-							<label>Include Products:</label>
-						</th>
-						<td>
-							<label><input type="radio" name="products" value="all"'.($reportSettings['products'] == 'all' ? ' checked="checked"' : '').' /> All products</label><br />
-							<label><input type="radio" name="products" value="cats"'.($reportSettings['products'] == 'cats' ? ' checked="checked"' : '').' /> Products in categories:</label><br />
-							<div style="padding-left: 20px; width: 300px; max-height: 200px; overflow-y: auto;">
-						');
-	foreach (get_terms('product_cat', array('hierarchical' => false)) as $term) {
-		echo('<label><input type="checkbox" name="product_cats[]"'.(in_array($term->term_id, $reportSettings['product_cats']) ? ' checked="checked"' : '').' value="'.$term->term_id.'" /> '.htmlspecialchars($term->name).'</label><br />');
-	}
-				echo('
-							</div>
-							<label><input type="radio" name="products" value="ids"'.($reportSettings['products'] == 'ids' ? ' checked="checked"' : '').' /> Product ID(s):</label> 
-							<input type="text" name="product_ids" style="width: 400px;" placeholder="Use commas to separate multiple product IDs" value="'.htmlspecialchars($reportSettings['product_ids']).'" /><br />
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row">
-							<label>Product Variations:</label>
-						</th>
-						<td>
-							<label>
-								<input type="radio" name="variations" value="0"'.(empty($reportSettings['variations']) ? ' checked="checked"' : '').' class="variations-fld" />
-								Group product variations together
-							</label><br />
-							<label>
-								<input type="radio" name="variations" value="1" disabled="disabled" class="variations-fld" />
-								Report on each variation separately<sup style="color: #f00;">PRO</sup>
-							</label>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row">
-							<label for="hm_sbp_field_orderby">Sort By:</label>
-						</th>
-						<td>
-							<select name="orderby" id="hm_sbp_field_orderby">
-								<option value="product_id"'.($reportSettings['orderby'] == 'product_id' ? ' selected="selected"' : '').'>Product ID</option>
-								<option value="quantity"'.($reportSettings['orderby'] == 'quantity' ? ' selected="selected"' : '').'>Quantity Sold</option>
-								<option value="gross"'.($reportSettings['orderby'] == 'gross' ? ' selected="selected"' : '').'>Gross Sales</option>
-								<option value="gross_after_discount"'.($reportSettings['orderby'] == 'gross_after_discount' ? ' selected="selected"' : '').'>Gross Sales (After Discounts)</option>
-							</select>
-							<select name="orderdir">
-								<option value="asc"'.($reportSettings['orderdir'] == 'asc' ? ' selected="selected"' : '').'>ascending</option>
-								<option value="desc"'.($reportSettings['orderdir'] == 'desc' ? ' selected="selected"' : '').'>descending</option>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row">
-							<label>Report Fields:</label>
-						</th>
-						<td id="hm_psr_report_field_selection">');
-	$fieldOptions2 = $fieldOptions;
-	foreach ($reportSettings['fields'] as $fieldId) {
-		if (!isset($fieldOptions2[$fieldId]))
-			continue;
-		echo('<label><input type="checkbox" name="fields[]" checked="checked" value="'.$fieldId.'"'.(in_array($fieldId, array('variation_id', 'variation_attributes')) ? ' class="variation-field"' : '').' /> '.$fieldOptions2[$fieldId].'</label>');
-		unset($fieldOptions2[$fieldId]);
-	}
-	foreach ($fieldOptions2 as $fieldId => $fieldDisplay) {
-		echo('<label><input type="checkbox" name="fields[]" value="'.$fieldId.'"'.(in_array($fieldId, array('variation_id', 'variation_attributes')) ? ' class="variation-field"' : '').' /> '.$fieldDisplay.'</label>');
-	}
-	unset($fieldOptions2);
-				echo('</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row" colspan="2" class="th-full">
-							<label>
-								<input type="checkbox" name="exclude_free"'.(empty($reportSettings['exclude_free']) ? '' : ' checked="checked"').' />
-								Exclude free products
-							</label>
-							<p class="description">If checked, order line items with a total amount of zero (after discounts) will be excluded from the report calculations.</p>
-						</th>
-					</tr>
-					<tr valign="top">
-						<th scope="row" colspan="2" class="th-full">
-							<label>
-								<input type="checkbox" name="limit_on"'.(empty($reportSettings['limit_on']) ? '' : ' checked="checked"').' />
-								Show only the first
-								<input type="number" name="limit" value="'.$reportSettings['limit'].'" min="0" step="1" class="small-text" />
-								products
-							</label>
-						</th>
-					</tr>
-					<tr valign="top">
-						<th scope="row" colspan="2" class="th-full">
-							<label>
-								<input type="checkbox" name="include_header"'.(empty($reportSettings['include_header']) ? '' : ' checked="checked"').' />
-								Include header row
-							</label>
-						</th>
-					</tr>
-				</table>');
-				
-				echo('<p class="submit">
-					<button type="submit" class="button-primary" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'\'); return true;">View Report</button>
-					<button type="submit" class="button-primary" name="hm_sbp_download" value="1" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'_blank\'); return true;">Download Report as CSV</button>
-				</p>
-			</form>
-			
-			</div> <!-- /post-body-content -->
-			
-			<div id="postbox-container-1" class="postbox-container">
-				<div id="side-sortables" class="meta-box-sortables">
-				
-					<div class="postbox">
-						<h2><a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Upgrade to Pro</a></h2>
-						<div class="inside">
-							<p><strong>Upgrade to <a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Product Sales Report Pro</a> for the following additional features:</strong></p>
-							<ul style="list-style-type: disc; padding-left: 1.5em;">
-<li>Report on product variations individually.</li>
-<li>Optionally include products with no sales.</li>
-<li>Report on shipping methods used.</li>
-<li>Limit the report to orders with a matching custom meta field (e.g. delivery date).</li>
-<li>Change the names and order of fields in the report.</li>
-<li>Include <strong style="color: #f00;">any custom field</strong> associated with a product.</li>
-<li>Save multiple report presets to save time when generating different reports.</li>
-<li>Export in Excel (XLSX or XLS) format.</li>
-<li>Send the report as an email attachment.</li>
-							</ul>
-							<p>
-								<strong>Receive a 25% discount with the coupon code <span style="color: #f00;">PSR25OFF</span>!</strong>
-								<a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Buy Now &gt;</a>
-							</p>
-						</div>
-					</div>
-					
-					<div class="postbox">
-						<h2><a href="https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Schedule Email Reports</a></h2>
-						<div class="inside">
-							<strong>Automatically send reports as email attachments on a recurring schedule.</strong><br />
-							<a href="https://potentplugins.com/downloads/scheduled-email-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Get the add-on plugin &gt;</a>
-						</div>
-					</div>
-					<div class="postbox">
-						<h2><a href="https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Embed Report in Frontend Pages</a></h2>
-						<div class="inside">
-							<strong>Display the report or a download link in posts and pages using a shortcode.</strong><br />
-							<a href="https://potentplugins.com/downloads/frontend-reports-woocommerce-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Get the add-on plugin &gt;</a>
-						</div>
-					</div>
-					
-				</div> <!-- /side-sortables-->
-			</div><!-- /postbox-container-1 -->
-			
-			</div> <!-- /post-body -->
-			<br class="clear" />
-			</div> <!-- /poststuff -->
-			
-			');
-			
-			
-			if (!empty($_POST['hm_sbp_do_export'])) {
-				echo('<table id="hm_sbp_table">');
-				if (!empty($_POST['include_header'])) {
-					echo('<thead><tr>');
-					foreach (hm_sbp_export_header(null, true) as $rowItem)
-						echo('<th>'.htmlspecialchars($rowItem).'</th>');
-					echo('</tr></thead>');
-				}
-				echo('<tbody>');
-				foreach (hm_sbp_export_body(null, true) as $row) {
-					echo('<tr>');
-					foreach ($row as $rowItem) {
-						echo('<td>'.htmlspecialchars($rowItem).'</td>');
-					}
-					echo('</tr>');
-				}
-				echo('</tbody></table>');
-				
-			}
-			
-			$potent_slug = 'product-sales-report-for-woocommerce';
-			include(__DIR__.'/plugin-credit.php');
-			
-			echo('
-				<h4>More <strong style="color: #f00;">free</strong> plugins for WooCommerce:</h4>
-				<a href="https://wordpress.org/plugins/export-order-items-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/xoiwc-icon.png', __FILE__).'" alt="Export Order Items" /></a>
-				<a href="https://wordpress.org/plugins/stock-export-and-import-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/sxiwc-icon.png', __FILE__).'" alt="Stock Export and Import" /></a>
-				<a href="https://wordpress.org/plugins/sales-trends-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/wcst-icon.png', __FILE__).'" alt="Sales Trends" /></a>
-				<a href="https://wordpress.org/plugins/price-match-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/wcpm-icon.png', __FILE__).'" alt="Price Match" /></a>
-				<a href="https://wordpress.org/plugins/donations-for-woocommerce/" target="_blank" style="margin-right: 10px;"><img src="'.plugins_url('images/wcdon-icon.png', __FILE__).'" alt="Donations" /></a>
-			');
-
-			
-	echo('
-		</div>
-		
-		<script type="text/javascript" src="'.plugins_url('js/hm-product-sales-report.js', __FILE__).'"></script>
-	');
-	
-	
-
-
+	include(dirname(__FILE__).'/admin.php');
 }
 
 // Hook into WordPress init; this function performs report generation when
 // the admin form is submitted
-add_action('init', 'hm_sbp_on_init', 9999);
-function hm_sbp_on_init() {
+add_action('init', 'hm_sbpf_on_init', 9999);
+function hm_sbpf_on_init() {
 	global $pagenow;
 	
 	// Check if we are in admin and on the report page
 	if (!is_admin())
 		return;
-	if ($pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == 'hm_sbp' && !empty($_POST['hm_sbp_do_export'])) {
+	if ($pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == 'hm_sbpf' && !empty($_POST['hm_sbp_do_export'])) {
 		
 		// Verify the nonce
-		check_admin_referer('hm_sbp_do_export');
+		check_admin_referer('hm_sbpf_do_export');
 		
-		$newSettings = array_intersect_key($_POST, hm_psr_default_report_settings());
+		$newSettings = array_intersect_key($_POST, hm_psrf_default_report_settings());
 		foreach ($newSettings as $key => $value)
 			if (!is_array($value))
 				$newSettings[$key] = htmlspecialchars($value);
 		
 		// Update the saved report settings
 		$savedReportSettings = get_option('hm_psr_report_settings');
-		$savedReportSettings[0] = array_merge(hm_psr_default_report_settings(), $newSettings);
+		$savedReportSettings[0] = array_merge(hm_psrf_default_report_settings(), $newSettings);
 		
 
 		update_option('hm_psr_report_settings', $savedReportSettings);
@@ -387,15 +123,15 @@ function hm_sbp_on_init() {
 		// Output the report header row (if applicable) and body
 		$stdout = fopen('php://output', 'w');
 		if (!empty($_POST['include_header']))
-			hm_sbp_export_header($stdout);
-		hm_sbp_export_body($stdout);
+			hm_sbpf_export_header($stdout);
+		hm_sbpf_export_body($stdout);
 		
 		exit;
 	}
 }
 
 // This function outputs the report header row
-function hm_sbp_export_header($dest, $return=false) {
+function hm_sbpf_export_header($dest, $return=false) {
 	$header = array();
 	
 	foreach ($_POST['fields'] as $field) {
@@ -436,7 +172,7 @@ function hm_sbp_export_header($dest, $return=false) {
 }
 
 // This function generates and outputs the report body rows
-function hm_sbp_export_body($dest, $return=false) {
+function hm_sbpf_export_body($dest, $return=false) {
 	global $woocommerce, $wpdb;
 	
 	$product_ids = array();
@@ -466,7 +202,27 @@ function hm_sbp_export_body($dest, $return=false) {
 			break;
 		case '7d':
 			$end_date = strtotime('midnight', current_time('timestamp')) - 86400;
-			$start_date = $end_date - (86400 * 7);
+			$start_date = $end_date - (86400 * 6);
+			break;
+		case '1cm':
+			$start_date = strtotime(date('Y-m', current_time('timestamp')).'-01 midnight -1month');
+			$end_date = strtotime('+1month', $start_date) - 86400;
+			break;
+		case '0cm':
+			$start_date = strtotime(date('Y-m', current_time('timestamp')).'-01 midnight');
+			$end_date = strtotime('+1month', $start_date) - 86400;
+			break;
+		case '+1cm':
+			$start_date = strtotime(date('Y-m', current_time('timestamp')).'-01 midnight +1month');
+			$end_date = strtotime('+1month', $start_date) - 86400;
+			break;
+		case '+7d':
+			$start_date = strtotime('midnight', current_time('timestamp')) + 86400;
+			$end_date = $start_date + (86400 * 6);
+			break;
+		case '+30d':
+			$start_date = strtotime('midnight', current_time('timestamp')) + 86400;
+			$end_date = $start_date + (86400 * 29);
 			break;
 		case 'custom':
 			$end_date = strtotime('midnight', strtotime($_POST['report_end']));
@@ -474,7 +230,7 @@ function hm_sbp_export_body($dest, $return=false) {
 			break;
 		default: // 30 days is the default
 			$end_date = strtotime('midnight', current_time('timestamp')) - 86400;
-			$start_date = $end_date - (86400 * 30);
+			$start_date = $end_date - (86400 * 29);
 	}
 	
 	// Assemble order by string
@@ -486,6 +242,8 @@ function hm_sbp_export_body($dest, $return=false) {
 	$wc_report = new WC_Admin_Report();
 	$wc_report->start_date = $start_date;
 	$wc_report->end_date = $end_date;
+	
+	//echo(date('Y-m-d', $end_date));
 	
 	$where_meta = array();
 	if ($_POST['products'] != 'all') {
@@ -511,7 +269,7 @@ function hm_sbp_export_body($dest, $return=false) {
 	$wpdb->query('SET SQL_BIG_SELECTS=1');
 	
 	// Prevent plugins from overriding the order status filter
-	add_filter('woocommerce_reports_order_statuses', 'hm_psr_report_order_statuses', 9999);
+	add_filter('woocommerce_reports_order_statuses', 'hm_psrf_report_order_statuses', 9999);
 	
 	// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 	$sold_products = $wc_report->get_order_report_data(array(
@@ -548,11 +306,12 @@ function hm_sbp_export_body($dest, $return=false) {
 		'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
 		'filter_range' => ($_POST['report_time'] != 'all'),
 		'order_types' => wc_get_order_types('order_count'),
-		'order_status' => hm_psr_report_order_statuses()
+		'order_status' => hm_psrf_report_order_statuses(),
+		'debug' => true
 	));
 	
 	// Remove report order statuses filter
-	remove_filter('woocommerce_reports_order_statuses', 'hm_psr_report_order_statuses', 9999);
+	remove_filter('woocommerce_reports_order_statuses', 'hm_psrf_report_order_statuses', 9999);
 	
 	if ($return)
 		$rows = array();
@@ -607,20 +366,20 @@ function hm_sbp_export_body($dest, $return=false) {
 		return $rows;
 }
 
-add_action('admin_enqueue_scripts', 'hm_psr_admin_enqueue_scripts');
-function hm_psr_admin_enqueue_scripts() {
-	wp_enqueue_style('hm_psr_admin_style', plugins_url('css/hm-product-sales-report.css', __FILE__));
+add_action('admin_enqueue_scripts', 'hm_psrf_admin_enqueue_scripts');
+function hm_psrf_admin_enqueue_scripts() {
+	wp_enqueue_style('hm_psrf_admin_style', plugins_url('css/hm-product-sales-report.css', __FILE__));
 	wp_enqueue_style('pikaday', plugins_url('css/pikaday.css', __FILE__));
 	wp_enqueue_script('moment', plugins_url('js/moment.min.js', __FILE__));
 	wp_enqueue_script('pikaday', plugins_url('js/pikaday.js', __FILE__));
 }
 
 // Schedulable email report hook
-add_filter('pp_wc_get_schedulable_email_reports', 'hm_psr_add_schedulable_email_reports');
-function hm_psr_add_schedulable_email_reports($reports) {
+add_filter('pp_wc_get_schedulable_email_reports', 'hm_psrf_add_schedulable_email_reports');
+function hm_psrf_add_schedulable_email_reports($reports) {
 	$reports['hm_psr'] = array(
 		'name' => 'Product Sales Report',
-		'callback' => 'hm_psr_run_scheduled_report',
+		'callback' => 'hm_psrf_run_scheduled_report',
 		'reports' => array(
 			'last' => 'Last used settings'
 		)
@@ -628,7 +387,7 @@ function hm_psr_add_schedulable_email_reports($reports) {
 	return $reports;
 }
 
-function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $output=false) {
+function hm_psrf_run_scheduled_report($reportId, $start, $end, $args=array(), $output=false) {
 	$savedReportSettings = get_option('hm_psr_report_settings');
 	if (!isset($savedReportSettings[0]))
 		return false;
@@ -641,11 +400,11 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 	
 	if ($output) {
 		echo('<table><thead><tr>');
-		foreach (hm_sbp_export_header(null, true) as $heading) {
+		foreach (hm_sbpf_export_header(null, true) as $heading) {
 			echo("<th>$heading</th>");
 		}
 		echo('</tr></thead><tbody>');
-		foreach (hm_sbp_export_body(null, true) as $row) {
+		foreach (hm_sbpf_export_body(null, true) as $row) {
 			echo('<tr>');
 			foreach ($row as $cell)
 				echo('<td>'.htmlspecialchars($cell).'</td>');
@@ -659,8 +418,8 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 	$filename = get_temp_dir().'/Product Sales Report.csv';
 	$out = fopen($filename, 'w');
 	if (!empty($_POST['include_header']))
-		hm_sbp_export_header($out);
-	hm_sbp_export_body($out);
+		hm_sbpf_export_header($out);
+	hm_sbpf_export_body($out);
 	fclose($out);
 	
 	$_POST = $prevPost;
@@ -668,7 +427,7 @@ function hm_psr_run_scheduled_report($reportId, $start, $end, $args=array(), $ou
 	return $filename;
 }
 
-function hm_psr_report_order_statuses() {
+function hm_psrf_report_order_statuses() {
 	$wcOrderStatuses = wc_get_order_statuses();
 	$orderStatuses = array();
 	if (!empty($_POST['order_statuses'])) {
@@ -682,8 +441,8 @@ function hm_psr_report_order_statuses() {
 
 /* Review/donate notice */
 
-register_activation_hook(__FILE__, 'hm_psr_first_activate');
-function hm_psr_first_activate() {
+register_activation_hook(__FILE__, 'hm_psrf_first_activate');
+function hm_psrf_first_activate() {
 	$pre = 'hm_psr';
 	$firstActivate = get_option($pre.'_first_activate');
 	if (empty($firstActivate)) {
@@ -691,20 +450,20 @@ function hm_psr_first_activate() {
 	}
 }
 if (is_admin() && get_option('hm_psr_rd_notice_hidden') != 1 && time() - get_option('hm_psr_first_activate') >= (14*86400)) {
-	add_action('admin_notices', 'hm_psr_rd_notice');
-	add_action('wp_ajax_hm_psr_rd_notice_hide', 'hm_psr_rd_notice_hide');
+	add_action('admin_notices', 'hm_psrf_rd_notice');
+	add_action('wp_ajax_hm_psr_rd_notice_hide', 'hm_psrf_rd_notice_hide');
 }
-function hm_psr_rd_notice() {
+function hm_psrf_rd_notice() {
 	$pre = 'hm_psr';
 	$slug = 'product-sales-report-for-woocommerce';
 	echo('
 		<div id="'.$pre.'_rd_notice" class="updated notice is-dismissible"><p>Do you use the <strong>Product Sales Report</strong> plugin?
 		Please support our free plugin by <a href="https://wordpress.org/support/view/plugin-reviews/'.$slug.'" target="_blank">writing a review</a> and/or <a href="https://potentplugins.com/donate/?utm_source='.$slug.'&amp;utm_medium=link&amp;utm_campaign=wp-plugin-notice-donate-link" target="_blank">making a donation</a>!
 		Thanks!</p></div>
-		<script>jQuery(document).ready(function($){$(\'#'.$pre.'_rd_notice\').on(\'click\', \'.notice-dismiss\', function(){jQuery.post(ajaxurl, {action:\'hm_psr_rd_notice_hide\'})});});</script>
+		<script>jQuery(document).ready(function($){$(\'#'.$pre.'_rd_notice\').on(\'click\', \'.notice-dismiss\', function(){jQuery.post(ajaxurl, {action:\'hm_psrf_rd_notice_hide\'})});});</script>
 	');
 }
-function hm_psr_rd_notice_hide() {
+function hm_psrf_rd_notice_hide() {
 	$pre = 'hm_psr';
 	update_option($pre.'_rd_notice_hidden', 1);
 }

@@ -3,8 +3,8 @@ Contributors: hearken
 Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-readme-donate-link
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 3.5
-Tested up to: 4.6
-Stable tag: 1.4.6
+Tested up to: 4.7
+Stable tag: 1.4.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,8 +13,6 @@ Generates a report on individual WooCommerce products sold during a specified ti
 == Description ==
 
 The Product Sales Report plugin generates reports on the quantity and gross sales of individual WooCommerce products sold over a specified date range. Reports can be downloaded in CSV (Comma-Separated Values) format for further analysis in your spreadsheet software, or for import into other software that supports CSV-formatted data files.
-
-Important note: When used with older versions of WooCommerce, the reported sales quantities may be incorrect for products that had line item refunds during the reporting period. Please keep your copy of WooCommerce up to date to help ensure compatibility and report accuracy.
 
 Features:
 
@@ -57,6 +55,11 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.4.7 =
+* Fixed incorrect date ranges when using the "Last 7 days", "Last 30 days", "Next 7 days", or "Next 30 days" options
+* Added calendar month date range options
+* Fixed conflict with Product Sales Report Pro
 
 = 1.4.6 =
 * Fixed potential incompatibility with order status plugin(s)
@@ -113,3 +116,6 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.4.7 =
+When using the "Last 7 days", "Last 30 days", "Next 7 days", or "Next 30 days" options in previous versions of the plugin, the computed date range included one too many days. We recommend updating immediately to ensure data accuracy.
