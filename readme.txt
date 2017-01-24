@@ -4,7 +4,7 @@ Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-f
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 3.5
 Tested up to: 4.7
-Stable tag: 1.4.7
+Stable tag: 1.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.4.8 =
+* Fixed review/donate notification not being hidden
 
 = 1.4.7 =
 * Fixed incorrect date ranges when using the "Last 7 days", "Last 30 days", "Next 7 days", or "Next 30 days" options

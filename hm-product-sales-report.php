@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.7
+ * Version: 1.4.8
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 2 or later
@@ -450,7 +450,7 @@ function hm_psrf_first_activate() {
 }
 if (is_admin() && get_option('hm_psr_rd_notice_hidden') != 1 && time() - get_option('hm_psr_first_activate') >= (14*86400)) {
 	add_action('admin_notices', 'hm_psrf_rd_notice');
-	add_action('wp_ajax_hm_psr_rd_notice_hide', 'hm_psrf_rd_notice_hide');
+	add_action('wp_ajax_hm_psrf_rd_notice_hide', 'hm_psrf_rd_notice_hide');
 }
 function hm_psrf_rd_notice() {
 	$pre = 'hm_psr';
