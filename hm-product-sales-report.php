@@ -2,13 +2,42 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.8
+ * Version: 1.4.9
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
- * License: GNU General Public License version 2 or later
- * License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+ * License: GNU General Public License version 3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
+ * WC tested up to: 4.0.0
  */
+ 
+/*
+    Product Sales Report for WooCommerce
+    Copyright (C) 2020  Aspen Grove Studios
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/* CREDITS:
+ * This plugin contains code copied from and/or based on the following third-party products,
+ * in addition to any others indicated in code comments or license files:
+ *
+ * WordPress, by Automattic, GPLv2+
+ * WooCommerce, by Automattic, GPLv3+
+ *
+ * See licensing and copyright information in the ./license directory.
+ * This file was modified by Jonathan Hall. Last modified 2020-03-16.
+*/
 
 // Add the Product Sales Report to the WordPress admin
 add_action('admin_menu', 'hm_psrf_admin_menu');
@@ -271,7 +300,7 @@ function hm_sbpf_export_body($dest, $return=false) {
 	// Prevent plugins from overriding the order status filter
 	add_filter('woocommerce_reports_order_statuses', 'hm_psrf_report_order_statuses', 9999);
 	
-	// Based on woocoommerce/includes/admin/reports/class-wc-report-sales-by-product.php
+	// Based on woocommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 	$sold_products = $wc_report->get_order_report_data(array(
 		'data' => array(
 			'_product_id' => array(

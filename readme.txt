@@ -1,12 +1,12 @@
 === Product Sales Report for WooCommerce ===
-Contributors: hearken
+Contributors: hearken, aspengrovestudios
 Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-readme-donate-link
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 3.5
-Tested up to: 4.9.4
-Stable tag: 1.4.8
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to: 5.3.2
+Stable tag: 1.4.9
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 Generates a report on individual WooCommerce products sold during a specified time period.
 
@@ -55,6 +55,10 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.4.9 =
+* Updated license (GPLv3+)
+* Removed social media embeds from admin page
 
 = 1.4.8 =
 * Fixed review/donate notification not being hidden
