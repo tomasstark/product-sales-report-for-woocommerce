@@ -3,8 +3,8 @@ Contributors: hearken, aspengrovestudios
 Donate link: https://potentplugins.com/donate/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-readme-donate-link
 Tags: woocommerce, sales, report, reporting, export, csv, excel, spreadsheet
 Requires at least: 3.5
-Tested up to: 5.3.2
-Stable tag: 1.4.9
+Tested up to: 5.4.1
+Stable tag: 1.4.10
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -55,6 +55,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 1.4.10 =
+* Added messaging on admin page about line item refunds
 
 = 1.4.9 =
 * Updated license (GPLv3+)

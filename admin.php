@@ -166,7 +166,8 @@ unset($fieldOptions2);
 						</label>
 					</th>
 				</tr>
-			</table>');
+			</table>
+			<p class="description">Note: Line item refunds created during the reporting period (regardless of the original order date) will be deducted from sales quantities and amounts if the status of the line item refund matches one of the selected order statuses (e.g. Complete), independent of the status of the original order. If you would like to disable this behavior, please check out our <a href="http://potentplugins.com/downloads/product-sales-report-pro-wordpress-plugin/?utm_source=product-sales-report&amp;utm_medium=link&amp;utm_campaign=wp-plugin-upgrade-link" target="_blank">Pro plugin</a>, which also applies status filtering differently for line item refunds. Note that line item refunds are not the same as setting an entire order to the Refunded status, which does not automatically create a line item refund.</p>');
 			
 			echo('<p class="submit">
 				<button type="submit" class="button-primary" onclick="jQuery(this).closest(\'form\').attr(\'target\', \'\'); return true;">View Report</button>

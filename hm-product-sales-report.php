@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Product Sales Report for WooCommerce
  * Description: Generates a report on individual WooCommerce products sold during a specified time period.
- * Version: 1.4.9
+ * Version: 1.4.10
  * Author: Potent Plugins
  * Author URI: http://potentplugins.com/?utm_source=product-sales-report-for-woocommerce&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License: GNU General Public License version 3 or later
@@ -36,7 +36,7 @@
  * WooCommerce, by Automattic, GPLv3+
  *
  * See licensing and copyright information in the ./license directory.
- * This file was modified by Jonathan Hall. Last modified 2020-03-16.
+ * This file was modified by Jonathan Hall. Last modified 2020-06-04.
 */
 
 // Add the Product Sales Report to the WordPress admin
@@ -334,7 +334,7 @@ function hm_sbpf_export_body($dest, $return=false) {
 		'order_by' => $orderby,
 		'limit' => (!empty($_POST['limit_on']) && is_numeric($_POST['limit']) ? $_POST['limit'] : ''),
 		'filter_range' => ($_POST['report_time'] != 'all'),
-		'order_types' => wc_get_order_types('order_count'),
+		'order_types' => wc_get_order_types(),
 		'order_status' => hm_psrf_report_order_statuses()
 	));
 	
