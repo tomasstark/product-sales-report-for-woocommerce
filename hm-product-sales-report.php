@@ -9,7 +9,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
  * WC tested up to: 4.0.0
  */
- 
+
 /*
     Product Sales Report for WooCommerce
     Copyright (C) 2020  Aspen Grove Studios
@@ -46,7 +46,7 @@ function hm_psrf_admin_menu() {
 }
 
 function hm_psrf_default_report_settings() {
-	return array(
+	$settings = array(
 		'report_time' => '30d',
 		'report_start' => date('Y-m-d', current_time('timestamp') - (86400 * 31)),
 		'report_end' => date('Y-m-d', current_time('timestamp') - 86400),
@@ -63,6 +63,8 @@ function hm_psrf_default_report_settings() {
 		'include_header' => 1,
 		'exclude_free' => 0
 	);
+
+	return apply_filters( 'hm_psrf_default_settings', $settings );
 }
 
 // This function generates the Product Sales Report page HTML
@@ -75,7 +77,7 @@ function hm_sbpf_page() {
 		$_POST['r'] = 0;
 		echo('<script type="text/javascript">location.href = location.href;</script>');
 	}
-	
+
 	$reportSettings = (empty($savedReportSettings) ?
 						hm_psrf_default_report_settings() :
 						array_merge(hm_psrf_default_report_settings(),
@@ -83,13 +85,13 @@ function hm_sbpf_page() {
 									isset($_POST['r']) && isset($savedReportSettings[$_POST['r']]) ? $_POST['r'] : 0
 								]
 						));
-	
+
 	// For backwards compatibility with pre-1.4 versions
 	if (!empty($reportSettings['cat'])) {
 		$reportSettings['products'] = 'cats';
 		$reportSettings['product_cats'] = array($reportSettings['cat']);
 	}
-	
+
 	$fieldOptions = array(
 		'product_id' => 'Product ID',
 		'variation_id' => 'Variation ID',
@@ -101,7 +103,7 @@ function hm_sbpf_page() {
 		'gross_sales' => 'Gross Sales',
 		'gross_after_discount' => 'Gross Sales (After Discounts)'
 	);
-		
+
 	include(dirname(__FILE__).'/admin.php');
 }
 
@@ -110,32 +112,32 @@ function hm_sbpf_page() {
 add_action('init', 'hm_sbpf_on_init', 9999);
 function hm_sbpf_on_init() {
 	global $pagenow;
-	
+
 	// Check if we are in admin and on the report page
 	if (!is_admin())
 		return;
 	if ($pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == 'hm_sbpf' && !empty($_POST['hm_sbp_do_export'])) {
-		
+
 		// Verify the nonce
 		check_admin_referer('hm_sbpf_do_export');
-		
+
 		$newSettings = array_intersect_key($_POST, hm_psrf_default_report_settings());
 		foreach ($newSettings as $key => $value)
 			if (!is_array($value))
 				$newSettings[$key] = htmlspecialchars($value);
-		
+
 		// Update the saved report settings
 		$savedReportSettings = get_option('hm_psr_report_settings');
 		$savedReportSettings[0] = array_merge(hm_psrf_default_report_settings(), $newSettings);
-		
+
 
 		update_option('hm_psr_report_settings', $savedReportSettings);
-		
+
 		// Check if no fields are selected or if not downloading
 		if (empty($_POST['fields']) || empty($_POST['hm_sbp_download']))
 			return;
-		
-		
+
+
 		// Assemble the filename for the report download
 		$filename =  'Product Sales - ';
 		if (!empty($_POST['cat']) && is_numeric($_POST['cat'])) {
@@ -144,17 +146,17 @@ function hm_sbpf_on_init() {
 				$filename .= addslashes(html_entity_decode($cat->name)).' - ';
 		}
 		$filename .= date('Y-m-d', current_time('timestamp')).'.csv';
-		
+
 		// Send headers
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="'.$filename.'"');
-		
+
 		// Output the report header row (if applicable) and body
 		$stdout = fopen('php://output', 'w');
 		if (!empty($_POST['include_header']))
 			hm_sbpf_export_header($stdout);
 		hm_sbpf_export_body($stdout);
-		
+
 		exit;
 	}
 }
@@ -162,7 +164,7 @@ function hm_sbpf_on_init() {
 // This function outputs the report header row
 function hm_sbpf_export_header($dest, $return=false) {
 	$header = array();
-	
+
 	foreach ($_POST['fields'] as $field) {
 		switch ($field) {
 			case 'product_id':
@@ -194,7 +196,7 @@ function hm_sbpf_export_header($dest, $return=false) {
 				break;
 		}
 	}
-	
+
 	if ($return)
 		return $header;
 	fputcsv($dest, $header);
@@ -203,7 +205,7 @@ function hm_sbpf_export_header($dest, $return=false) {
 // This function generates and outputs the report body rows
 function hm_sbpf_export_body($dest, $return=false) {
 	global $woocommerce, $wpdb;
-	
+
 	$product_ids = array();
 	if ($_POST['products'] == 'cats') {
 		$cats = array();
@@ -218,7 +220,7 @@ function hm_sbpf_export_body($dest, $return=false) {
 				$product_ids[] = $productId;
 		}
 	}
-	
+
 	// Calculate report start and end dates (timestamps)
 	switch ($_POST['report_time']) {
 		case '0d':
@@ -261,19 +263,19 @@ function hm_sbpf_export_body($dest, $return=false) {
 			$end_date = strtotime('midnight', current_time('timestamp')) - 86400;
 			$start_date = $end_date - (86400 * 29);
 	}
-	
+
 	// Assemble order by string
 	$orderby = (in_array($_POST['orderby'], array('product_id', 'gross', 'gross_after_discount')) ? $_POST['orderby'] : 'quantity');
 	$orderby .= ' '.($_POST['orderdir'] == 'asc' ? 'ASC' : 'DESC');
-	
+
 	// Create a new WC_Admin_Report object
 	include_once($woocommerce->plugin_path().'/includes/admin/reports/class-wc-admin-report.php');
 	$wc_report = new WC_Admin_Report();
 	$wc_report->start_date = $start_date;
 	$wc_report->end_date = $end_date;
-	
+
 	//echo(date('Y-m-d', $end_date));
-	
+
 	$where_meta = array();
 	if ($_POST['products'] != 'all') {
 		$where_meta[] = array(
@@ -291,15 +293,15 @@ function hm_sbpf_export_body($dest, $return=false) {
 			'type' => 'order_item_meta'
 		);
 	}
-	
+
 	// Get report data
-	
+
 	// Avoid max join size error
 	$wpdb->query('SET SQL_BIG_SELECTS=1');
-	
+
 	// Prevent plugins from overriding the order status filter
 	add_filter('woocommerce_reports_order_statuses', 'hm_psrf_report_order_statuses', 9999);
-	
+
 	// Based on woocommerce/includes/admin/reports/class-wc-report-sales-by-product.php
 	$sold_products = $wc_report->get_order_report_data(array(
 		'data' => array(
@@ -337,17 +339,17 @@ function hm_sbpf_export_body($dest, $return=false) {
 		'order_types' => wc_get_order_types(),
 		'order_status' => hm_psrf_report_order_statuses()
 	));
-	
+
 	// Remove report order statuses filter
 	remove_filter('woocommerce_reports_order_statuses', 'hm_psrf_report_order_statuses', 9999);
-	
+
 	if ($return)
 		$rows = array();
 
 	// Output report rows
 	foreach ($sold_products as $product) {
 		$row = array();
-		
+
 		foreach ($_POST['fields'] as $field) {
 			switch ($field) {
 				case 'product_id':
@@ -384,7 +386,7 @@ function hm_sbpf_export_body($dest, $return=false) {
 					break;
 			}
 		}
-			
+
 		if ($return)
 			$rows[] = $row;
 		else
@@ -425,7 +427,7 @@ function hm_psrf_run_scheduled_report($reportId, $start, $end, $args=array(), $o
 	$_POST['report_start'] = date('Y-m-d', $start);
 	$_POST['report_end'] = date('Y-m-d', $end);
 	$_POST = array_merge($_POST, array_intersect_key($args, $_POST));
-	
+
 	if ($output) {
 		echo('<table><thead><tr>');
 		foreach (hm_sbpf_export_header(null, true) as $heading) {
@@ -442,16 +444,16 @@ function hm_psrf_run_scheduled_report($reportId, $start, $end, $args=array(), $o
 		$_POST = $prevPost;
 		return;
 	}
-	
+
 	$filename = get_temp_dir().'/Product Sales Report.csv';
 	$out = fopen($filename, 'w');
 	if (!empty($_POST['include_header']))
 		hm_sbpf_export_header($out);
 	hm_sbpf_export_body($out);
 	fclose($out);
-	
+
 	$_POST = $prevPost;
-	
+
 	return $filename;
 }
 
